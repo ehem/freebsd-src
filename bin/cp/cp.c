@@ -72,7 +72,7 @@ static char emptystring[] = "";
 
 PATH_T to = { to.p_path, emptystring, "" };
 
-int Nflag, fflag, iflag, lflag, nflag, pflag, sflag, vflag;
+bool Nflag, fflag, iflag, lflag, nflag, pflag, sflag, vflag;
 static int Hflag, Lflag, Pflag, Rflag, rflag;
 volatile sig_atomic_t info;
 

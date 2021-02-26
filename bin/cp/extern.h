@@ -29,6 +29,8 @@
  * SUCH DAMAGE.
  */
 
+#include <stdbool.h>
+
 typedef struct {
 	char	*p_end;			/* pointer to NULL at end of path */
 	char	*target_end;		/* pointer to end of target base */
@@ -36,7 +38,7 @@ typedef struct {
 } PATH_T;
 
 extern PATH_T to;
-extern int Nflag, fflag, iflag, lflag, nflag, pflag, sflag, vflag;
+extern bool Nflag, fflag, iflag, lflag, nflag, pflag, sflag, vflag;
 extern volatile sig_atomic_t info;
 
 __BEGIN_DECLS
