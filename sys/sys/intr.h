@@ -35,6 +35,7 @@
 
 #ifndef LOCORE
 #include <sys/systm.h>
+#include <sys/interrupt.h>
 #endif
 
 #define	INTR_IRQ_INVALID	0xFFFFFFFF
