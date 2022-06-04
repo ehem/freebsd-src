@@ -28,6 +28,12 @@
 #ifndef	_SYS_MACHINE_INTERRUPT_H_
 #define	_SYS_MACHINE_INTERRUPT_H_
 
+/* FreeBSD standard interrupt controller interface */
+
+typedef struct intsrc interrupt_t;
+
+/* FreeBSD standard interrupt controller interface */
+
 #include <sys/interrupt.h>
 
 #include <machine/intr_machdep.h>

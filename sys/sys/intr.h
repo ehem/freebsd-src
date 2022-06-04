@@ -35,6 +35,13 @@
 
 #ifndef LOCORE
 #include <sys/systm.h>
+
+/* FreeBSD standard interrupt controller interface */
+
+typedef struct intr_irqsrc interrupt_t;
+
+/* FreeBSD standard interrupt controller interface */
+
 #include <sys/interrupt.h>
 #endif
 
