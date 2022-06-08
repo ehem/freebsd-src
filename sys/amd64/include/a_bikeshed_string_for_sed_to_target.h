@@ -28,7 +28,7 @@
 #ifndef __MACHINE_INTR_MACHDEP_H__
 #define	__MACHINE_INTR_MACHDEP_H__
 
-#include <x86/intr_machdep.h>
+#include <x86/a_bikeshed_string_for_sed_to_target.h>
 
 /*
  * The following data structure holds per-cpu data, and is placed just
