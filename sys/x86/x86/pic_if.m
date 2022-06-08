@@ -26,7 +26,7 @@
 INTERFACE pic;
 
 HEADER {
-	#include <machine/intr_machdep.h>
+	#include <machine/interrupt.h>
 
 	/* Flags for pic_disable_intr() */
 	enum eoi_flag {
