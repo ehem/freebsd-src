@@ -47,14 +47,13 @@
 #include <sys/lock.h>
 #include <sys/mutex.h>
 #include <sys/smp.h>
-#include <sys/interrupt.h>
 
 #include <vm/vm.h>
 #include <vm/pmap.h>
 
 #include <machine/bus.h>
 #include <machine/cpu.h>
-#include <machine/intr.h>
+#include <machine/interrupt.h>
 
 #ifdef FDT
 #include <dev/fdt/fdt_intr.h>

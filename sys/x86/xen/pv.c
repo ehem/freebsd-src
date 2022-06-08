@@ -59,7 +59,7 @@
 #include <vm/vm_param.h>
 
 #include <machine/_inttypes.h>
-#include <machine/intr_machdep.h>
+#include <machine/interrupt.h>
 #include <x86/acpica_machdep.h>
 #include <x86/apicvar.h>
 #include <x86/init.h>

@@ -42,7 +42,6 @@
 
 #include <sys/param.h>
 #include <sys/bus.h>
-#include <sys/interrupt.h>
 #include <sys/kernel.h>
 #include <sys/limits.h>
 #include <sys/lock.h>
@@ -55,7 +54,7 @@
 #include <machine/cputypes.h>
 #include <machine/md_var.h>
 #include <machine/frame.h>
-#include <machine/intr_machdep.h>
+#include <machine/interrupt.h>
 #include <x86/apicvar.h>
 #include <x86/iommu/iommu_intrmap.h>
 #include <machine/specialreg.h>

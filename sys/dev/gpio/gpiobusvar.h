@@ -41,7 +41,8 @@
 #endif
 
 #ifdef	INTRNG
-#include <sys/intr.h>
+/* touched by LINT-ACPI */
+#include <machine/interrupt.h>
 #endif
 
 #include "gpio_if.h"
