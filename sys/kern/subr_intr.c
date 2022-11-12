@@ -479,6 +479,23 @@ isrc_free_irq(struct intr_irqsrc *isrc)
 }
 
 /*
+ *  Destroy interrupt event for interrupt source.
+ */
+static int
+isrc_event_destroy(struct intr_irqsrc *isrc)
+{
+	int rc;
+
+	MPASS(isrc->isrc_irq >= intr_nirq);
+
+	rc = intr_event_destroy(isrc->isrc_event);
+	if (rc == 0)
+		isrc->isrc_event = NULL;
+
+	return (rc);
+}
+
+/*
  *  Initialize interrupt source and register it into global interrupt table.
  */
 int
@@ -527,7 +544,11 @@ intr_isrc_deregister(struct intr_irqsrc *isrc)
 		isrc_release_counters(isrc);
 	error = isrc_free_irq(isrc);
 	mtx_unlock(&isrc_table_lock);
-	return (error);
+
+	if (error != 0)
+		return (error);
+
+	return (isrc_event_destroy(isrc));
 }
 
 #ifdef SMP
@@ -695,24 +716,7 @@ isrc_event_create(struct intr_irqsrc *isrc)
 
 	return (0);
 }
-#ifdef notyet
-/*
- *  Destroy interrupt event for interrupt source.
- */
-static void
-isrc_event_destroy(struct intr_irqsrc *isrc)
-{
-	struct intr_event *ie;
 
-	mtx_lock(&isrc_table_lock);
-	ie = isrc->isrc_event;
-	isrc->isrc_event = NULL;
-	mtx_unlock(&isrc_table_lock);
-
-	if (ie != NULL)
-		intr_event_destroy(ie);
-}
-#endif
 /*
  *  Add handler to interrupt source.
  */
