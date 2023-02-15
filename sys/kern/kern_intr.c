@@ -531,7 +531,7 @@ intr_event_destroy(struct intr_event *ie)
 {
 
 	if (ie == NULL)
-		return (EINVAL);
+		return (0);
 
 	mtx_lock(&event_lock);
 	mtx_lock(&ie->ie_lock);
