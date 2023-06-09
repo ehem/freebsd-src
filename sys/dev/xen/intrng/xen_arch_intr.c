@@ -193,6 +193,7 @@ static device_method_t xen_methods[] = {
 	DEVMETHOD(device_attach, xen_attach),
 
 	/* Interrupt controller interface */
+	DEVMETHOD(pic_init_secondary,	(pic_init_secondary_t *)xen_setup_vcpu_info),
 
 	DEVMETHOD_END
 };
