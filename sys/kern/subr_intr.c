@@ -686,10 +686,11 @@ isrc_event_create(struct intr_irqsrc *isrc)
 #else
 	if (isrc->isrc_event != NULL) {
 #endif
+		/* We entered a race and lost.  An event was added. */
 		mtx_unlock(&isrc_table_lock);
-		intr_event_destroy(ie);
-		return (isrc->isrc_event != NULL ? EBUSY : 0);
+		return (intr_event_destroy(ie));
 	}
+	/* We may or may not have entered a race and won. */
 	isrc->isrc_event = ie;
 	mtx_unlock(&isrc_table_lock);
 
