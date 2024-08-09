@@ -35,7 +35,12 @@
 #ifndef	_MACHINE_INTR_MACHDEP_H_
 #define	_MACHINE_INTR_MACHDEP_H_
 
-#define	INTR_ROOT_IRQ	0
+typedef enum {
+	INTR_ROOT_IRQ = 0,
+
+	INTR_ROOT_END	/* MUST BE LAST */
+} intr_root_t;
+#define	INTR_ROOT_COUNT	INTR_ROOT_END
 
 #ifndef	NIRQ
 #define	NIRQ			1024

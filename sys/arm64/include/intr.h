@@ -33,9 +33,16 @@
 #endif
 #endif
 
-#define	INTR_ROOT_IRQ	0
+#define	_INTR_ROOT_IRQ	0
 
 #ifndef LOCORE
+typedef enum {
+	INTR_ROOT_IRQ =	_INTR_ROOT_IRQ,
+
+	INTR_ROOT_END	/* MUST BE LAST */
+} intr_root_t;
+#define	INTR_ROOT_COUNT	INTR_ROOT_END
+
 #include <sys/intr.h>
 
 #ifndef NIRQ

@@ -314,7 +314,7 @@ ASENTRY_NP(irq_entry)
 	PUSHFRAMEINSVC			/* mode stack, build trapframe there. */
 	adr	lr, exception_exit	/* Return from handler via standard */
 	mov	r0, sp			/* exception exit routine.  Pass the */
-	mov	r1, #INTR_ROOT_IRQ	/* trapframe and PIC root to the handler. */
+	mov	r1, #_INTR_ROOT_IRQ	/* trapframe and PIC root to the handler. */
 	b	_C_LABEL(intr_irq_handler)
 END(irq_entry)
 
