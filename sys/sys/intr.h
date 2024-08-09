@@ -37,15 +37,10 @@
 #error "sys/intr.h included without machine/intr.h!"
 #endif
 
-#ifndef LOCORE
 #include <sys/systm.h>
-#endif
 
 #define	INTR_IRQ_INVALID	0xFFFFFFFF
 
-#define INTR_ROOT_IRQ	0
-
-#ifndef LOCORE
 enum intr_map_data_type {
 	INTR_MAP_DATA_ACPI = 0,
 	INTR_MAP_DATA_FDT,
@@ -69,6 +64,16 @@ struct intr_map_data_msi {
 	struct intr_map_data	hdr;
 	struct intr_irqsrc 	*isrc;
 };
+
+/*
+ * Archs may define multiple roots with INTR_ROOT_COUNT to support different
+ * kinds of interrupts (e.g. arm64 FIQs which use a different exception vector
+ * than IRQs).
+ */
+#if !defined(INTR_ROOT_COUNT)
+#define	INTR_ROOT_COUNT	1
+typedef	u_register_t	intr_root_t;
+#endif
 
 #ifdef notyet
 #define	INTR_SOLO	INTR_MD1
@@ -120,12 +125,12 @@ u_int intr_irq_next_cpu(u_int current_cpu, cpuset_t *cpumask);
 struct intr_pic *intr_pic_register(device_t, intptr_t);
 int intr_pic_deregister(device_t, intptr_t);
 int intr_pic_claim_root(device_t, intptr_t, intr_irq_filter_t *, void *,
-    uint32_t);
+    intr_root_t);
 int intr_pic_add_handler(device_t, struct intr_pic *,
     intr_child_irq_filter_t *, void *, uintptr_t, uintptr_t);
 bool intr_is_per_cpu(struct resource *);
 
-device_t intr_irq_root_dev(uint32_t);
+device_t intr_irq_root_dev(intr_root_t);
 
 /* Intr interface for BUS. */
 
@@ -174,7 +179,6 @@ void intr_ipi_dispatch(u_int ipi);
 #endif
 
 /* Main interrupt handler called from asm on most archs except riscv. */
-void intr_irq_handler(struct trapframe *tf, uint32_t rootnum);
+void intr_irq_handler(struct trapframe *tf, intr_root_t rootnum);
 
-#endif	/* !LOCORE */
 #endif	/* _SYS_INTR_H */

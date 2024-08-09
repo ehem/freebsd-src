@@ -35,6 +35,8 @@
 #ifndef	_MACHINE_INTR_MACHDEP_H_
 #define	_MACHINE_INTR_MACHDEP_H_
 
+#define	INTR_ROOT_IRQ	0
+
 #ifndef	NIRQ
 #define	NIRQ			1024
 #endif

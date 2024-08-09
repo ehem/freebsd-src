@@ -1093,7 +1093,7 @@ gic_v3_bind_intr(device_t dev, struct intr_irqsrc *isrc)
 
 #ifdef SMP
 static void
-gic_v3_init_secondary(device_t dev, uint32_t rootnum)
+gic_v3_init_secondary(device_t dev, intr_root_t rootnum)
 {
 	struct gic_v3_setup_periph_args pargs;
 	device_t child;
