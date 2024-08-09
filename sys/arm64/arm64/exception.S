@@ -234,7 +234,7 @@ ENTRY(handle_el1h_irq)
 	save_registers 1
 	KMSAN_ENTER
 	mov	x0, sp
-	mov	x1, #INTR_ROOT_IRQ
+	mov	x1, #_INTR_ROOT_IRQ
 	bl	intr_irq_handler
 	KMSAN_LEAVE
 	restore_registers 1
@@ -245,7 +245,7 @@ ENTRY(handle_el1h_fiq)
 	save_registers 1
 	KMSAN_ENTER
 	mov	x0, sp
-	mov	x1, #INTR_ROOT_FIQ
+	mov	x1, #_INTR_ROOT_FIQ
 	bl	intr_irq_handler
 	KMSAN_LEAVE
 	restore_registers 1
@@ -280,7 +280,7 @@ ENTRY(handle_el0_irq)
 	save_registers 0
 	KMSAN_ENTER
 	mov	x0, sp
-	mov	x1, #INTR_ROOT_IRQ
+	mov	x1, #_INTR_ROOT_IRQ
 	bl	intr_irq_handler
 	do_ast
 	KMSAN_LEAVE
@@ -292,7 +292,7 @@ ENTRY(handle_el0_fiq)
 	save_registers 0
 	KMSAN_ENTER
 	mov	x0, sp
-	mov	x1, #INTR_ROOT_FIQ
+	mov	x1, #_INTR_ROOT_FIQ
 	bl	intr_irq_handler
 	do_ast
 	KMSAN_LEAVE
