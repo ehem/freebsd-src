@@ -40,10 +40,6 @@
 #include <dev/ofw/ofw_bus_subr.h>
 #endif
 
-#ifdef	INTRNG
-#include <sys/intr.h>
-#endif
-
 #include "gpio_if.h"
 
 #ifdef FDT
