@@ -47,12 +47,16 @@ arm_irq_memory_barrier(uintptr_t irq)
 {
 }
 
+#endif	/* !LOCORE */
+
 #ifdef DEV_ACPI
 #define	ACPI_INTR_XREF	1
 #define	ACPI_MSI_XREF	2
 #define	ACPI_GPIO_XREF	3
 #endif
 
-#endif	/* !LOCORE */
+#define	INTR_ROOT_FIQ	1
+
+#define	INTR_ROOT_NUM	2
 
 #endif	/* _MACHINE_INTR_H */
