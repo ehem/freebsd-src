@@ -126,15 +126,16 @@ struct msi_intsrc {
 };
 
 static void	msi_create_source(void);
-static void	msi_enable_source(struct intsrc *isrc);
-static void	msi_disable_source(struct intsrc *isrc, int eoi);
-static void	msi_eoi_source(struct intsrc *isrc);
-static void	msi_enable_intr(struct intsrc *isrc);
-static void	msi_disable_intr(struct intsrc *isrc);
-static int	msi_source_pending(struct intsrc *isrc);
-static int	msi_config_intr(struct intsrc *isrc, enum intr_trigger trig,
-		    enum intr_polarity pol);
-static int	msi_assign_cpu(struct intsrc *isrc, u_int apic_id);
+static void	msi_enable_source(x86pic_t pic, struct intsrc *isrc);
+static void	msi_disable_source(x86pic_t pic, struct intsrc *isrc, int eoi);
+static void	msi_eoi_source(x86pic_t pic, struct intsrc *isrc);
+static void	msi_enable_intr(x86pic_t pic, struct intsrc *isrc);
+static void	msi_disable_intr(x86pic_t pic, struct intsrc *isrc);
+static int	msi_source_pending(x86pic_t pic, struct intsrc *isrc);
+static int	msi_config_intr(x86pic_t pic, struct intsrc *isrc,
+		    enum intr_trigger trig, enum intr_polarity pol);
+static int	msi_assign_cpu(x86pic_t pic, struct intsrc *isrc,
+		    u_int apic_id);
 
 x86pic_func_t msi_pic = {
 	X86PIC_FUNC(pic_enable_source,	msi_enable_source),
@@ -178,12 +179,12 @@ static u_int msi_last_irq;
 static struct mtx msi_lock;
 
 static void
-msi_enable_source(struct intsrc *isrc)
+msi_enable_source(x86pic_t pic, struct intsrc *isrc)
 {
 }
 
 static void
-msi_disable_source(struct intsrc *isrc, int eoi)
+msi_disable_source(x86pic_t pic, struct intsrc *isrc, int eoi)
 {
 
 	if (eoi == PIC_EOI)
@@ -191,14 +192,14 @@ msi_disable_source(struct intsrc *isrc, int eoi)
 }
 
 static void
-msi_eoi_source(struct intsrc *isrc)
+msi_eoi_source(x86pic_t pic, struct intsrc *isrc)
 {
 
 	lapic_eoi();
 }
 
 static void
-msi_enable_intr(struct intsrc *isrc)
+msi_enable_intr(x86pic_t pic, struct intsrc *isrc)
 {
 	struct msi_intsrc *msi = (struct msi_intsrc *)isrc;
 
@@ -211,7 +212,7 @@ msi_enable_intr(struct intsrc *isrc)
 }
 
 static void
-msi_disable_intr(struct intsrc *isrc)
+msi_disable_intr(x86pic_t pic, struct intsrc *isrc)
 {
 	struct msi_intsrc *msi = (struct msi_intsrc *)isrc;
 
@@ -224,14 +225,14 @@ msi_disable_intr(struct intsrc *isrc)
 }
 
 static int
-msi_source_pending(struct intsrc *isrc)
+msi_source_pending(x86pic_t pic, struct intsrc *isrc)
 {
 
 	return (0);
 }
 
 static int
-msi_config_intr(struct intsrc *isrc, enum intr_trigger trig,
+msi_config_intr(x86pic_t pic, struct intsrc *isrc, enum intr_trigger trig,
     enum intr_polarity pol)
 {
 
@@ -239,7 +240,7 @@ msi_config_intr(struct intsrc *isrc, enum intr_trigger trig,
 }
 
 static int
-msi_assign_cpu(struct intsrc *isrc, u_int apic_id)
+msi_assign_cpu(x86pic_t pic, struct intsrc *isrc, u_int apic_id)
 {
 	struct msi_intsrc *sib, *msi = (struct msi_intsrc *)isrc;
 	int old_vector;
