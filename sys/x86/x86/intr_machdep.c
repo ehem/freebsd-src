@@ -106,7 +106,7 @@ static MALLOC_DEFINE(M_INTR, "intr", "Interrupt Sources");
 static int	intr_assign_cpu(void *arg, int cpu);
 static void	intr_disable_src(void *arg);
 static void	intr_init(void *__dummy);
-static int	intr_pic_registered(struct pic *pic);
+static int	intr_pic_registered(x86pic_t pic);
 static void	intrcnt_setname(const char *name, int index);
 static void	intrcnt_updatename(struct intsrc *is);
 static void	intrcnt_register(struct intsrc *is);
@@ -124,9 +124,9 @@ static void	intrcnt_register(struct intsrc *is);
  */
 
 static int
-intr_pic_registered(struct pic *pic)
+intr_pic_registered(x86pic_t pic)
 {
-	struct pic *p;
+	x86pic_t p;
 
 	TAILQ_FOREACH(p, &pics, pics) {
 		if (p == pic)
@@ -168,7 +168,7 @@ intr_create_pic(const char *name, u_int unit, driver_t *driver)
  * 8259As in a system using the APICs) to participate in suspend and resume.
  */
 int
-intr_register_pic(struct pic *pic)
+intr_register_pic(x86pic_t pic)
 {
 	int error;
 
@@ -190,7 +190,7 @@ intr_register_pic(struct pic *pic)
 static void
 intr_init_sources(void *arg)
 {
-	struct pic *pic;
+	x86pic_t pic;
 
 	MPASS(num_io_irqs > 0);
 
@@ -385,7 +385,7 @@ intr_execute_handlers(struct intsrc *isrc, struct trapframe *frame)
 void
 intr_resume(bool suspend_cancelled)
 {
-	struct pic *pic;
+	x86pic_t pic;
 
 #ifndef DEV_ATPIC
 	atpic_reset();
@@ -401,7 +401,7 @@ intr_resume(bool suspend_cancelled)
 void
 intr_suspend(void)
 {
-	struct pic *pic;
+	x86pic_t pic;
 
 	mtx_lock(&intrpic_lock);
 	TAILQ_FOREACH_REVERSE(pic, &pics, pics_head, pics) {
