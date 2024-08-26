@@ -1141,7 +1141,7 @@ intr_setup_irq(device_t dev, struct resource *res, driver_filter_t filt,
 	if (error == 0) {
 		isrc->isrc_handlers++;
 		if (isrc->isrc_handlers == 1)
-			PIC_ENABLE_INTR(isrc->isrc_dev, isrc);
+			PIC_ENABLE(isrc->isrc_dev, isrc);
 	}
 	mtx_unlock(&isrc_table_lock);
 	if (error != 0)
@@ -1176,7 +1176,7 @@ intr_teardown_irq(device_t dev, struct resource *res, void *cookie)
 		isrc->isrc_filter = NULL;
 		isrc->isrc_arg = NULL;
 		isrc->isrc_handlers = 0;
-		PIC_DISABLE_INTR(isrc->isrc_dev, isrc);
+		PIC_DISABLE(isrc->isrc_dev, isrc);
 		PIC_TEARDOWN_INTR(isrc->isrc_dev, isrc, res, data);
 		isrc_update_name(isrc, NULL);
 		mtx_unlock(&isrc_table_lock);
@@ -1191,7 +1191,7 @@ intr_teardown_irq(device_t dev, struct resource *res, void *cookie)
 		mtx_lock(&isrc_table_lock);
 		isrc->isrc_handlers--;
 		if (isrc->isrc_handlers == 0)
-			PIC_DISABLE_INTR(isrc->isrc_dev, isrc);
+			PIC_DISABLE(isrc->isrc_dev, isrc);
 		PIC_TEARDOWN_INTR(isrc->isrc_dev, isrc, res, data);
 		intrcnt_updatename(isrc);
 		mtx_unlock(&isrc_table_lock);
@@ -1907,7 +1907,7 @@ intr_ipi_setup(u_int ipi, const char *name, intr_ipi_handler_t *hand,
 	strlcpy(ii->ii_name, name, INTR_IPI_NAMELEN);
 	ii->ii_count = intr_ipi_setup_counters(name);
 
-	PIC_ENABLE_INTR(intr_ipi_dev, isrc);
+	PIC_ENABLE(intr_ipi_dev, isrc);
 }
 
 void

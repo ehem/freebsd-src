@@ -50,8 +50,8 @@
 /* Smaller priority number means higher priority */
 #define	APLIC_INTR_DEF_PRIO	1
 
-static pic_disable_intr_t	aplic_disable_intr;
-static pic_enable_intr_t	aplic_enable_intr;
+static pic_disable_t		aplic_disable_intr;
+static pic_enable_t		aplic_enable_intr;
 static pic_map_intr_t		aplic_map_intr;
 static pic_setup_intr_t		aplic_setup_intr;
 static pic_post_ithread_t	aplic_post_ithread;
@@ -538,8 +538,8 @@ static device_method_t aplic_methods[] = {
 	DEVMETHOD(device_probe,		aplic_probe),
 	DEVMETHOD(device_attach,	aplic_attach),
 
-	DEVMETHOD(pic_disable_intr,	aplic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	aplic_enable_intr),
+	DEVMETHOD(pic_disable,		aplic_disable_intr),
+	DEVMETHOD(pic_enable,		aplic_enable_intr),
 	DEVMETHOD(pic_map_intr,		aplic_map_intr),
 	DEVMETHOD(pic_pre_ithread,	aplic_pre_ithread),
 	DEVMETHOD(pic_post_ithread,	aplic_post_ithread),

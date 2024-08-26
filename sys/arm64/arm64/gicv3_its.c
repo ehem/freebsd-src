@@ -324,8 +324,8 @@ static const struct {
 static device_attach_t gicv3_its_attach;
 static device_detach_t gicv3_its_detach;
 
-static pic_disable_intr_t gicv3_its_disable_intr;
-static pic_enable_intr_t gicv3_its_enable_intr;
+static pic_disable_t gicv3_its_disable_intr;
+static pic_enable_t gicv3_its_enable_intr;
 static pic_map_intr_t gicv3_its_map_intr;
 static pic_setup_intr_t gicv3_its_setup_intr;
 static pic_post_filter_t gicv3_its_post_filter;
@@ -357,8 +357,8 @@ static device_method_t gicv3_its_methods[] = {
 	DEVMETHOD(device_detach,	gicv3_its_detach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	gicv3_its_disable_intr),
-	DEVMETHOD(pic_enable_intr,	gicv3_its_enable_intr),
+	DEVMETHOD(pic_disable,		gicv3_its_disable_intr),
+	DEVMETHOD(pic_enable,		gicv3_its_enable_intr),
 	DEVMETHOD(pic_map_intr,		gicv3_its_map_intr),
 	DEVMETHOD(pic_setup_intr,	gicv3_its_setup_intr),
 	DEVMETHOD(pic_post_filter,	gicv3_its_post_filter),

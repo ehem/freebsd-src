@@ -853,8 +853,8 @@ static device_method_t tegra_gpio_methods[] = {
 	DEVMETHOD(device_detach,	tegra_gpio_detach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	tegra_gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	tegra_gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		tegra_gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		tegra_gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		tegra_gpio_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	tegra_gpio_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	tegra_gpio_pic_teardown_intr),

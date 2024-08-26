@@ -1332,8 +1332,8 @@ static device_method_t bcm_gpio_methods[] = {
 	DEVMETHOD(gpio_pin_toggle,	bcm_gpio_pin_toggle),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	bcm_gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	bcm_gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		bcm_gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		bcm_gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		bcm_gpio_pic_map_intr),
 	DEVMETHOD(pic_post_filter,	bcm_gpio_pic_post_filter),
 	DEVMETHOD(pic_post_ithread,	bcm_gpio_pic_post_ithread),

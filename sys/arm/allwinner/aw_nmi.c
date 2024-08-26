@@ -394,8 +394,8 @@ static device_method_t aw_nmi_methods[] = {
 	DEVMETHOD(device_attach,	aw_nmi_attach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	aw_nmi_disable_intr),
-	DEVMETHOD(pic_enable_intr,	aw_nmi_enable_intr),
+	DEVMETHOD(pic_disable,		aw_nmi_disable_intr),
+	DEVMETHOD(pic_enable,		aw_nmi_enable_intr),
 	DEVMETHOD(pic_map_intr,		aw_nmi_map_intr),
 	DEVMETHOD(pic_setup_intr,	aw_nmi_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	aw_nmi_teardown_intr),

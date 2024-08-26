@@ -71,8 +71,8 @@
 #define	PLIC_CLAIM(sc, h)						\
     (sc->contexts[h].context_offset + PLIC_CONTEXT_CLAIM)
 
-static pic_disable_intr_t	plic_disable_intr;
-static pic_enable_intr_t	plic_enable_intr;
+static pic_disable_t		plic_disable_intr;
+static pic_enable_t		plic_enable_intr;
 static pic_map_intr_t		plic_map_intr;
 static pic_setup_intr_t		plic_setup_intr;
 static pic_post_ithread_t	plic_post_ithread;
@@ -479,8 +479,8 @@ static device_method_t plic_methods[] = {
 	DEVMETHOD(device_probe,		plic_probe),
 	DEVMETHOD(device_attach,	plic_attach),
 
-	DEVMETHOD(pic_disable_intr,	plic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	plic_enable_intr),
+	DEVMETHOD(pic_disable,		plic_disable_intr),
+	DEVMETHOD(pic_enable,		plic_enable_intr),
 	DEVMETHOD(pic_map_intr,		plic_map_intr),
 	DEVMETHOD(pic_pre_ithread,	plic_pre_ithread),
 	DEVMETHOD(pic_post_ithread,	plic_post_ithread),

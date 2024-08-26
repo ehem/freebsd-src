@@ -100,7 +100,7 @@ tegra_lic_disable_intr(device_t dev, struct intr_irqsrc *isrc)
 {
 	struct tegra_lic_sc *sc = device_get_softc(dev);
 
-	PIC_DISABLE_INTR(sc->parent, isrc);
+	PIC_DISABLE(sc->parent, isrc);
 }
 
 static void
@@ -108,7 +108,7 @@ tegra_lic_enable_intr(device_t dev, struct intr_irqsrc *isrc)
 {
 	struct tegra_lic_sc *sc = device_get_softc(dev);
 
-	PIC_ENABLE_INTR(sc->parent, isrc);
+	PIC_ENABLE(sc->parent, isrc);
 }
 
 static int
@@ -264,8 +264,8 @@ static device_method_t tegra_lic_methods[] = {
 
 	/* Interrupt controller interface */
 	DEVMETHOD(pic_activate_intr,	tegra_lic_activate_intr),
-	DEVMETHOD(pic_disable_intr,	tegra_lic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	tegra_lic_enable_intr),
+	DEVMETHOD(pic_disable,		tegra_lic_disable_intr),
+	DEVMETHOD(pic_enable,		tegra_lic_enable_intr),
 	DEVMETHOD(pic_map_intr,		tegra_lic_map_intr),
 	DEVMETHOD(pic_deactivate_intr,	tegra_lic_deactivate_intr),
 	DEVMETHOD(pic_setup_intr,	tegra_lic_setup_intr),

@@ -377,8 +377,8 @@ static device_method_t mv_mpic_methods[] = {
 	DEVMETHOD(device_probe,		mv_mpic_probe),
 	DEVMETHOD(device_attach,	mv_mpic_attach),
 
-	DEVMETHOD(pic_disable_intr,	mpic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	mpic_enable_intr),
+	DEVMETHOD(pic_disable,		mpic_disable_intr),
+	DEVMETHOD(pic_enable,		mpic_enable_intr),
 	DEVMETHOD(pic_map_intr,		mpic_map_intr),
 	DEVMETHOD(pic_post_filter,	mpic_post_filter),
 	DEVMETHOD(pic_post_ithread,	mpic_post_ithread),

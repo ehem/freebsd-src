@@ -415,8 +415,8 @@ static device_method_t qoriq_gpio_pic_methods[] = {
 	DEVMETHOD(bus_activate_resource,	bus_generic_activate_resource),
 	DEVMETHOD(bus_deactivate_resource,	bus_generic_deactivate_resource),
 
-	DEVMETHOD(pic_disable_intr,	qoriq_gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	qoriq_gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		qoriq_gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		qoriq_gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		qoriq_gpio_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	qoriq_gpio_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	qoriq_gpio_pic_teardown_intr),

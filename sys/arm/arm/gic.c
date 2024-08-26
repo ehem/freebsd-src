@@ -1225,8 +1225,8 @@ static device_method_t arm_gic_methods[] = {
 	DEVMETHOD(bus_write_ivar,	arm_gic_write_ivar),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	arm_gic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	arm_gic_enable_intr),
+	DEVMETHOD(pic_disable,		arm_gic_disable_intr),
+	DEVMETHOD(pic_enable,		arm_gic_enable_intr),
 	DEVMETHOD(pic_map_intr,		arm_gic_map_intr),
 	DEVMETHOD(pic_setup_intr,	arm_gic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	arm_gic_teardown_intr),

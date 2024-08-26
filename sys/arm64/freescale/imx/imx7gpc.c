@@ -70,7 +70,7 @@ imx7gpc_disable_intr(device_t dev, struct intr_irqsrc *isrc)
 {
 	struct imx7gpc_softc *sc = device_get_softc(dev);
 
-	PIC_DISABLE_INTR(sc->parent, isrc);
+	PIC_DISABLE(sc->parent, isrc);
 }
 
 static void
@@ -78,7 +78,7 @@ imx7gpc_enable_intr(device_t dev, struct intr_irqsrc *isrc)
 {
 	struct imx7gpc_softc *sc = device_get_softc(dev);
 
-	PIC_ENABLE_INTR(sc->parent, isrc);
+	PIC_ENABLE(sc->parent, isrc);
 }
 
 static int
@@ -214,8 +214,8 @@ static device_method_t imx7gpc_methods[] = {
 
 	/* Interrupt controller interface */
 	DEVMETHOD(pic_activate_intr,	imx7gpc_activate_intr),
-	DEVMETHOD(pic_disable_intr,	imx7gpc_disable_intr),
-	DEVMETHOD(pic_enable_intr,	imx7gpc_enable_intr),
+	DEVMETHOD(pic_disable,		imx7gpc_disable_intr),
+	DEVMETHOD(pic_enable,		imx7gpc_enable_intr),
 	DEVMETHOD(pic_map_intr,		imx7gpc_map_intr),
 	DEVMETHOD(pic_deactivate_intr,	imx7gpc_deactivate_intr),
 	DEVMETHOD(pic_setup_intr,	imx7gpc_setup_intr),

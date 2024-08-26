@@ -767,8 +767,8 @@ static device_method_t xlnx_pcib_fdt_methods[] = {
 	DEVMETHOD(msi_map_msi,			xlnx_pcib_msi_map_msi),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,		xlnx_pcib_msi_disable_intr),
-	DEVMETHOD(pic_enable_intr,		xlnx_pcib_msi_enable_intr),
+	DEVMETHOD(pic_disable,			xlnx_pcib_msi_disable_intr),
+	DEVMETHOD(pic_enable,			xlnx_pcib_msi_enable_intr),
 	DEVMETHOD(pic_setup_intr,		xlnx_pcib_msi_setup_intr),
 	DEVMETHOD(pic_teardown_intr,		xlnx_pcib_msi_teardown_intr),
 	DEVMETHOD(pic_post_filter,		xlnx_pcib_msi_post_filter),

@@ -295,8 +295,8 @@ static device_method_t intc_methods[] = {
 	DEVMETHOD(device_attach,	intc_attach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	intc_disable_intr),
-	DEVMETHOD(pic_enable_intr,	intc_enable_intr),
+	DEVMETHOD(pic_disable,		intc_disable_intr),
+	DEVMETHOD(pic_enable,		intc_enable_intr),
 	DEVMETHOD(pic_map_intr,		intc_map_intr),
 	DEVMETHOD(pic_setup_intr,	intc_setup_intr),
 #ifdef SMP

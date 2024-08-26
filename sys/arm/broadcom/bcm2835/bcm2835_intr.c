@@ -431,8 +431,8 @@ static device_method_t bcm_intc_methods[] = {
 	DEVMETHOD(device_probe,		bcm_intc_probe),
 	DEVMETHOD(device_attach,	bcm_intc_attach),
 
-	DEVMETHOD(pic_disable_intr,	bcm_intc_disable_intr),
-	DEVMETHOD(pic_enable_intr,	bcm_intc_enable_intr),
+	DEVMETHOD(pic_disable,		bcm_intc_disable_intr),
+	DEVMETHOD(pic_enable,		bcm_intc_enable_intr),
 	DEVMETHOD(pic_map_intr,		bcm_intc_map_intr),
 	DEVMETHOD(pic_post_filter,	bcm_intc_post_filter),
 	DEVMETHOD(pic_post_ithread,	bcm_intc_post_ithread),

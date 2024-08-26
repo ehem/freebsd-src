@@ -561,8 +561,8 @@ static device_method_t pl061_methods[] = {
 	DEVMETHOD(gpio_pin_toggle,	pl061_pin_toggle),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	pl061_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	pl061_pic_enable_intr),
+	DEVMETHOD(pic_disable,		pl061_pic_disable_intr),
+	DEVMETHOD(pic_enable,		pl061_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		pl061_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	pl061_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	pl061_pic_teardown_intr),

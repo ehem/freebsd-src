@@ -239,7 +239,7 @@ mv_ap806_gicp_enable_intr(device_t dev, struct intr_irqsrc *isrc)
 
 	sc = device_get_softc(dev);
 
-	PIC_ENABLE_INTR(sc->parent, isrc);
+	PIC_ENABLE(sc->parent, isrc);
 }
 
 static void
@@ -249,7 +249,7 @@ mv_ap806_gicp_disable_intr(device_t dev, struct intr_irqsrc *isrc)
 
 	sc = device_get_softc(dev);
 
-	PIC_DISABLE_INTR(sc->parent, isrc);
+	PIC_DISABLE(sc->parent, isrc);
 }
 
 static int
@@ -419,8 +419,8 @@ static device_method_t mv_ap806_gicp_methods[] = {
 
 	/* Interrupt controller interface */
 	DEVMETHOD(pic_activate_intr,	mv_ap806_gicp_activate_intr),
-	DEVMETHOD(pic_disable_intr,	mv_ap806_gicp_disable_intr),
-	DEVMETHOD(pic_enable_intr,	mv_ap806_gicp_enable_intr),
+	DEVMETHOD(pic_disable,		mv_ap806_gicp_disable_intr),
+	DEVMETHOD(pic_enable,		mv_ap806_gicp_enable_intr),
 	DEVMETHOD(pic_map_intr,		mv_ap806_gicp_map_intr),
 	DEVMETHOD(pic_deactivate_intr,	mv_ap806_gicp_deactivate_intr),
 	DEVMETHOD(pic_setup_intr,	mv_ap806_gicp_setup_intr),

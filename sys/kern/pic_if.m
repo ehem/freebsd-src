@@ -103,12 +103,12 @@ METHOD int bind_intr {
 	struct intr_irqsrc	*isrc;
 } DEFAULT dflt_pic_bind_intr;
 
-METHOD void disable_intr {
+METHOD void disable {
 	device_t		dev;
 	struct intr_irqsrc	*isrc;
 };
 
-METHOD void enable_intr {
+METHOD void enable {
 	device_t		dev;
 	struct intr_irqsrc	*isrc;
 };

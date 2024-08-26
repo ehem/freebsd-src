@@ -159,7 +159,7 @@ aw_r_intc_gicp_enable_intr(device_t dev, struct intr_irqsrc *isrc)
 
 	sc = device_get_softc(dev);
 
-	PIC_ENABLE_INTR(sc->parent, isrc);
+	PIC_ENABLE(sc->parent, isrc);
 }
 
 static void
@@ -169,7 +169,7 @@ aw_r_intc_gicp_disable_intr(device_t dev, struct intr_irqsrc *isrc)
 
 	sc = device_get_softc(dev);
 
-	PIC_DISABLE_INTR(sc->parent, isrc);
+	PIC_DISABLE(sc->parent, isrc);
 }
 
 static int
@@ -274,8 +274,8 @@ static device_method_t aw_r_intc_gicp_methods[] = {
 
 	/* Interrupt controller interface */
 	DEVMETHOD(pic_activate_intr,	aw_r_intc_gicp_activate_intr),
-	DEVMETHOD(pic_disable_intr,	aw_r_intc_gicp_disable_intr),
-	DEVMETHOD(pic_enable_intr,	aw_r_intc_gicp_enable_intr),
+	DEVMETHOD(pic_disable,		aw_r_intc_gicp_disable_intr),
+	DEVMETHOD(pic_enable,		aw_r_intc_gicp_enable_intr),
 	DEVMETHOD(pic_map_intr,		aw_r_intc_gicp_map_intr),
 	DEVMETHOD(pic_deactivate_intr,	aw_r_intc_gicp_deactivate_intr),
 	DEVMETHOD(pic_setup_intr,	aw_r_intc_gicp_setup_intr),

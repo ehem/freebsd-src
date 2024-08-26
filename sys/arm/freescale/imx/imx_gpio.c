@@ -918,8 +918,8 @@ static device_method_t imx51_gpio_methods[] = {
 
 #ifdef INTRNG
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		gpio_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	gpio_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	gpio_pic_teardown_intr),

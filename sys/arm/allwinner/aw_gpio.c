@@ -1453,8 +1453,8 @@ static device_method_t aw_gpio_methods[] = {
 	DEVMETHOD(device_detach,	aw_gpio_detach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	aw_gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	aw_gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		aw_gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		aw_gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		aw_gpio_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	aw_gpio_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	aw_gpio_pic_teardown_intr),

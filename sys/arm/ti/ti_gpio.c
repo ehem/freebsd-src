@@ -1101,8 +1101,8 @@ static device_method_t ti_gpio_methods[] = {
 	DEVMETHOD(gpio_pin_toggle, ti_gpio_pin_toggle),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	ti_gpio_pic_disable_intr),
-	DEVMETHOD(pic_enable_intr,	ti_gpio_pic_enable_intr),
+	DEVMETHOD(pic_disable,		ti_gpio_pic_disable_intr),
+	DEVMETHOD(pic_enable,		ti_gpio_pic_enable_intr),
 	DEVMETHOD(pic_map_intr,		ti_gpio_pic_map_intr),
 	DEVMETHOD(pic_setup_intr,	ti_gpio_pic_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	ti_gpio_pic_teardown_intr),

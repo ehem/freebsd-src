@@ -224,8 +224,8 @@ static device_method_t omap4_wugen_methods[] = {
 
 	/* Interrupt controller interface */
 	DEVMETHOD(pic_activate_intr,	omap4_wugen_activate_intr),
-	DEVMETHOD(pic_disable_intr,	omap4_wugen_disable_intr),
-	DEVMETHOD(pic_enable_intr,	omap4_wugen_enable_intr),
+	DEVMETHOD(pic_disable,		omap4_wugen_disable_intr),
+	DEVMETHOD(pic_enable,		omap4_wugen_enable_intr),
 	DEVMETHOD(pic_map_intr,		omap4_wugen_map_intr),
 	DEVMETHOD(pic_deactivate_intr,	omap4_wugen_deactivate_intr),
 	DEVMETHOD(pic_setup_intr,	omap4_wugen_setup_intr),

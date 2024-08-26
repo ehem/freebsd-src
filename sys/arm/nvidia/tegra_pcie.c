@@ -1600,8 +1600,8 @@ static device_method_t tegra_pcib_methods[] = {
 	DEVMETHOD(msi_map_msi,			tegra_pcib_msi_map_msi),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,		tegra_pcib_msi_disable_intr),
-	DEVMETHOD(pic_enable_intr,		tegra_pcib_msi_enable_intr),
+	DEVMETHOD(pic_disable,			tegra_pcib_msi_disable_intr),
+	DEVMETHOD(pic_enable,			tegra_pcib_msi_enable_intr),
 	DEVMETHOD(pic_setup_intr,		tegra_pcib_msi_setup_intr),
 	DEVMETHOD(pic_teardown_intr,		tegra_pcib_msi_teardown_intr),
 	DEVMETHOD(pic_post_filter,		tegra_pcib_msi_post_filter),

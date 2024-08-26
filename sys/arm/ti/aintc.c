@@ -286,8 +286,8 @@ static device_method_t ti_aintc_methods[] = {
 	DEVMETHOD(device_probe,		ti_aintc_probe),
 	DEVMETHOD(device_attach,	ti_aintc_attach),
 
-	DEVMETHOD(pic_disable_intr,	ti_aintc_disable_intr),
-	DEVMETHOD(pic_enable_intr,	ti_aintc_enable_intr),
+	DEVMETHOD(pic_disable,		ti_aintc_disable_intr),
+	DEVMETHOD(pic_enable,		ti_aintc_enable_intr),
 	DEVMETHOD(pic_map_intr,		ti_aintc_map_intr),
 	DEVMETHOD(pic_post_filter,	ti_aintc_post_filter),
 	DEVMETHOD(pic_post_ithread,	ti_aintc_post_ithread),

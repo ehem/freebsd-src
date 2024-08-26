@@ -478,8 +478,8 @@ static device_method_t mv_ap806_sei_methods[] = {
 	DEVMETHOD(device_detach,	mv_ap806_sei_detach),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	mv_ap806_sei_disable_intr),
-	DEVMETHOD(pic_enable_intr,	mv_ap806_sei_enable_intr),
+	DEVMETHOD(pic_disable,		mv_ap806_sei_disable_intr),
+	DEVMETHOD(pic_enable,		mv_ap806_sei_enable_intr),
 	DEVMETHOD(pic_map_intr,		mv_ap806_sei_map_intr),
 	DEVMETHOD(pic_setup_intr,	mv_ap806_sei_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	mv_ap806_sei_teardown_intr),

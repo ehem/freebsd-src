@@ -80,8 +80,8 @@ static bus_read_ivar_t gic_v3_read_ivar;
 static bus_write_ivar_t gic_v3_write_ivar;
 static bus_alloc_resource_t gic_v3_alloc_resource;
 
-static pic_disable_intr_t gic_v3_disable_intr;
-static pic_enable_intr_t gic_v3_enable_intr;
+static pic_disable_t gic_v3_disable_intr;
+static pic_enable_t gic_v3_enable_intr;
 static pic_map_intr_t gic_v3_map_intr;
 static pic_setup_intr_t gic_v3_setup_intr;
 static pic_teardown_intr_t gic_v3_teardown_intr;
@@ -126,8 +126,8 @@ static device_method_t gic_v3_methods[] = {
 	DEVMETHOD(bus_activate_resource, bus_generic_activate_resource),
 
 	/* Interrupt controller interface */
-	DEVMETHOD(pic_disable_intr,	gic_v3_disable_intr),
-	DEVMETHOD(pic_enable_intr,	gic_v3_enable_intr),
+	DEVMETHOD(pic_disable,		gic_v3_disable_intr),
+	DEVMETHOD(pic_enable,		gic_v3_enable_intr),
 	DEVMETHOD(pic_map_intr,		gic_v3_map_intr),
 	DEVMETHOD(pic_setup_intr,	gic_v3_setup_intr),
 	DEVMETHOD(pic_teardown_intr,	gic_v3_teardown_intr),
