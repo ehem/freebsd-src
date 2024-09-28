@@ -262,14 +262,14 @@ intr_register_source(u_int vector, struct intsrc *isrc)
 	    num_io_irqs));
 	if (interrupt_sources[vector] != NULL)
 		return (EEXIST);
-	error = intr_event_create_device(&isrc->is_event, isrc->is_pic, isrc,
+	error = intr_event_init(&isrc->is_event, isrc->is_pic, isrc,
 	    vector, 0, "irq%d:", vector);
 	if (error)
 		return (error);
 	sx_xlock(&intrsrc_lock);
 	if (interrupt_sources[vector] != NULL) {
 		sx_xunlock(&intrsrc_lock);
-		intr_event_destroy(isrc->is_event);
+		intr_event_shutdown(&isrc->is_event);
 		return (EEXIST);
 	}
 	intrcnt_register(isrc);
@@ -295,7 +295,7 @@ intr_add_handler(struct intsrc *isrc, const char *name, driver_filter_t filter,
 {
 	int error;
 
-	error = intr_event_add_handler(isrc->is_event, name, filter, handler,
+	error = intr_event_add_handler(&isrc->is_event, name, filter, handler,
 	    arg, intr_priority(flags), flags, cookiep);
 	if (error == 0) {
 		sx_xlock(&intrsrc_lock);
@@ -362,13 +362,13 @@ intr_execute_handlers(struct intsrc *isrc, struct trapframe *frame)
 	(*isrc->is_count)++;
 	VM_CNT_INC(v_intr);
 
-	ie = isrc->is_event;
+	ie = &isrc->is_event;
 
 	/*
 	 * XXX: We assume that IRQ 0 is only used for the ISA timer
 	 * device (clk).
 	 */
-	vector = isrc->is_event->ie_irq;
+	vector = isrc->is_event.ie_irq;
 	if (vector == 0)
 		clkintr_pending = 1;
 
@@ -461,7 +461,7 @@ static void
 intrcnt_updatename(struct intsrc *is)
 {
 
-	intrcnt_setname(is->is_event->ie_fullname, is->is_index);
+	intrcnt_setname(is->is_event.ie_fullname, is->is_index);
 }
 
 static void
@@ -469,13 +469,12 @@ intrcnt_register(struct intsrc *is)
 {
 	char straystr[INTRNAME_LEN];
 
-	KASSERT(is->is_event != NULL, ("%s: isrc with no event", __func__));
 	mtx_lock_spin(&intrcnt_lock);
 	MPASS(intrcnt_index + 2 <= nintrcnt);
 	is->is_index = intrcnt_index;
 	intrcnt_index += 2;
 	snprintf(straystr, sizeof(straystr), "stray irq%d",
-	    is->is_event->ie_irq);
+	    is->is_event.ie_irq);
 	intrcnt_updatename(is);
 	is->is_count = &intrcnt[is->is_index];
 	intrcnt_setname(straystr, is->is_index + 1);
@@ -548,7 +547,7 @@ intr_describe(struct intsrc *isrc, void *ih, const char *descr)
 {
 	int error;
 
-	error = intr_event_describe_handler(isrc->is_event, ih, descr);
+	error = intr_event_describe_handler(&isrc->is_event, ih, descr);
 	if (error)
 		return (error);
 	intrcnt_updatename(isrc);
@@ -588,7 +587,7 @@ DB_SHOW_COMMAND(irqs, db_show_irqs)
 	isrc = interrupt_sources;
 	for (i = 0; i < num_io_irqs && !db_pager_quit; i++, isrc++)
 		if (*isrc != NULL)
-			db_dump_intr_event((*isrc)->is_event, verbose);
+			db_dump_intr_event(&(*isrc)->is_event, verbose);
 }
 #endif
 
@@ -706,7 +705,7 @@ sysctl_hw_intrs(SYSCTL_HANDLER_ARGS)
 		if (isrc == NULL)
 			continue;
 		sbuf_printf(&sbuf, "%s:%d @cpu%d(domain%d): %ld\n",
-		    isrc->is_event->ie_fullname,
+		    isrc->is_event.ie_fullname,
 		    isrc->is_index,
 		    isrc->is_cpu,
 		    isrc->is_domain,
@@ -778,7 +777,7 @@ intr_balance(void *dummy __unused, int pending __unused)
 	 */
 	for (i = num_io_irqs - 1; i >= 0; i--) {
 		isrc = interrupt_sorted[i];
-		if (isrc == NULL  || isrc->is_event->ie_cpu != NOCPU)
+		if (isrc == NULL  || isrc->is_event.ie_cpu != NOCPU)
 			continue;
 		cpu = current_cpu[isrc->is_domain];
 		intr_next_cpu(isrc->is_domain);
