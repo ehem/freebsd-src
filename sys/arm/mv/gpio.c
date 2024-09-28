@@ -536,8 +536,7 @@ mv_gpio_intr_handler(device_t dev, int pin)
 #error "This fails with in-line events."
 	isrc.isrc_event = sc->gpio_events[pin];
 
-	if (isrc.isrc_event == NULL ||
-	    CK_SLIST_EMPTY(&isrc.isrc_event->ie_handlers))
+	if (CK_SLIST_EMPTY(&isrc.isrc_event.ie_handlers))
 		return;
 
 	intr_isrc_dispatch(&isrc, NULL);
