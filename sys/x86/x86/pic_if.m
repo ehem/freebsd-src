@@ -28,6 +28,8 @@ INTERFACE pic;
 HEADER {
 	#include <machine/interrupt.h>
 
+	#include "intr_event_if.h"
+
 	/* Flags for pic_disable_intr() */
 	enum eoi_flag {
 		PIC_EOI,
