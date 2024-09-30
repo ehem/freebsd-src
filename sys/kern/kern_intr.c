@@ -278,7 +278,7 @@ intr_event_update(struct intr_event *ie)
 }
 
 static int
-intr_event_initv(struct intr_event *ie, device_t pic, void *source,
+intr_event_initv(struct intr_event *ie, device_t pic, interrupt_t *source,
     u_int irq, int flags, const char *fmt, __va_list ap)
 {
 
@@ -304,7 +304,7 @@ intr_event_initv(struct intr_event *ie, device_t pic, void *source,
 
 int
 intr_event_create_device(struct intr_event **event, device_t pic,
-    void *source, u_int irq, int flags, const char *fmt, ...)
+    interrupt_t *source, u_int irq, int flags, const char *fmt, ...)
 {
 	struct intr_event *ie;
 	va_list ap;
@@ -335,7 +335,7 @@ struct	intr_event_compat {
 };
 
 static void
-event_compat_pre_ithread(device_t pic, void *intr)
+event_compat_pre_ithread(device_t pic, interrupt_t *intr)
 {
 	struct intr_event_compat *compat = (struct intr_event_compat *)intr;
 	void (*func)(void *) = compat->ie_pre_ithread;
@@ -344,7 +344,7 @@ event_compat_pre_ithread(device_t pic, void *intr)
 		func(compat->source);
 }
 static void
-event_compat_post_ithread(device_t pic, void *intr)
+event_compat_post_ithread(device_t pic, interrupt_t *intr)
 {
 	struct intr_event_compat *compat = (struct intr_event_compat *)intr;
 	void (*func)(void *) = compat->ie_post_ithread;
@@ -353,7 +353,7 @@ event_compat_post_ithread(device_t pic, void *intr)
 		func(compat->source);
 }
 static void
-event_compat_post_filter(device_t pic, void *intr)
+event_compat_post_filter(device_t pic, interrupt_t *intr)
 {
 	struct intr_event_compat *compat = (struct intr_event_compat *)intr;
 	void (*func)(void *) = compat->ie_post_filter;
@@ -362,7 +362,7 @@ event_compat_post_filter(device_t pic, void *intr)
 		func(compat->source);
 }
 static int
-event_compat_assign_cpu(device_t pic, void *intr, u_int cpu)
+event_compat_assign_cpu(device_t pic, interrupt_t *intr, u_int cpu)
 {
 	struct intr_event_compat *compat = (struct intr_event_compat *)intr;
 	int (*func)(void *, int) = compat->ie_assign_cpu;
@@ -409,7 +409,7 @@ intr_event_create(struct intr_event **event, void *source, int flags, u_int irq,
 	compat->source = source;
 
 	va_start(ap, fmt);
-	res = intr_event_initv(ie, handler, compat, irq, flags,
+	res = intr_event_initv(ie, handler, (interrupt_t *)compat, irq, flags,
 	    fmt, ap);
 	va_end(ap);
 

@@ -25,25 +25,27 @@
 
 #include <sys/bus.h>
 
+#include <machine/interrupt.h>
+
 INTERFACE intr_event;
 
 METHOD void pre_ithread {
 	device_t	pic;
-	void		*intr;
+	interrupt_t	*intr;
 };
 
 METHOD void post_ithread {
 	device_t	pic;
-	void		*intr;
+	interrupt_t	*intr;
 };
 
 METHOD void post_filter {
 	device_t	pic;
-	void		*intr;
+	interrupt_t	*intr;
 };
 
 METHOD int assign_cpu {
 	device_t	pic;
-	void		*intr;
+	interrupt_t	*intr;
 	u_int		cpu;
 };

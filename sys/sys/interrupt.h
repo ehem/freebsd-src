@@ -33,6 +33,8 @@
 #include <sys/_mutex.h>
 #include <sys/ck.h>
 
+#include <machine/interrupt.h>
+
 struct intr_event;
 struct intr_thread;
 struct trapframe;
@@ -110,7 +112,7 @@ struct intr_event {
 	char		ie_name[MAXCOMLEN + 1]; /* Individual event name. */
 	char		ie_fullname[MAXCOMLEN + 1];
 	struct mtx	ie_lock;
-	void		*ie_source;	/* Cookie used by MD code. */
+	interrupt_t	*ie_source;	/* Cookie used by MD code. */
 	struct intr_thread *ie_thread;	/* Thread we are connected to. */
 	device_t	ie_pic;
 	int		ie_flags;
@@ -172,7 +174,7 @@ struct _cpuset;
 int	intr_event_bind_ithread_cpuset(struct intr_event *ie,
 	    struct _cpuset *mask);
 int     intr_event_create_device(struct intr_event **event, device_t pic,
-	    void *source, u_int irq, int flags, const char *fmt, ...)
+	    interrupt_t *source, u_int irq, int flags, const char *fmt, ...)
 	    __printflike(6, 7);
 int	intr_event_create(struct intr_event **event, void *source,
 	    int flags, u_int irq, void (*pre_ithread)(void *),
