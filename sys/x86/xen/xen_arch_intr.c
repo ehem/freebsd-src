@@ -49,6 +49,8 @@
 
 #include <x86/apicvar.h>
 
+#include "pic_if.h"
+
 /************************ Xen x86 interrupt interface ************************/
 
 /*
@@ -258,7 +260,7 @@ xen_intr_pic_assign_cpu(x86pic_t pic, struct intsrc *isrc, u_int apic_id)
 /**
  * PIC interface for all event channel port types except physical IRQs.
  */
-static x86pic_func_t xen_intr_pic = {
+static x86pic_func_t xen_intr_funcs = {
 	X86PIC_FUNC(pic_enable_source,	xen_intr_pic_enable_source),
 	X86PIC_FUNC(pic_disable_source,	xen_intr_pic_disable_source),
 	X86PIC_FUNC(pic_eoi_source,	xen_intr_pic_eoi_source),
@@ -273,6 +275,11 @@ static x86pic_func_t xen_intr_pic = {
 	X86PIC_END
 };
 
+DEFINE_CLASS_1(xen_intr, xen_intr_class, xen_intr_funcs,
+    sizeof(pic_base_softc_t), pic_base_class);
+
+static x86pic_t xen_intr_pic;
+
 /******************************* ARCH wrappers *******************************/
 
 void
@@ -282,7 +289,8 @@ xen_arch_intr_init(void)
 
 	mtx_init(&xen_intr_x86_lock, "xen-x86-table-lock", NULL, MTX_DEF);
 
-	error = intr_register_pic(&xen_intr_pic);
+	xen_intr_pic = intr_create_pic("xen_intr", 0, &xen_intr_class);
+	error = intr_register_pic(xen_intr_pic);
 	if (error != 0)
 		panic("%s(): failed registering Xen/x86 PIC, error=%d\n",
 		    __func__, error);
@@ -310,7 +318,7 @@ xen_arch_intr_alloc(void)
 		SLIST_REMOVE_HEAD(&avail_list, free);
 		mtx_unlock(&xen_intr_x86_lock);
 
-		KASSERT(isrc->xi_arch.intsrc.is_pic == &xen_intr_pic,
+		KASSERT(isrc->xi_arch.intsrc.is_pic == xen_intr_pic,
 		    ("interrupt not owned by Xen code?"));
 
 		KASSERT(isrc->xi_arch.intsrc.is_handlers == 0,
@@ -336,7 +344,7 @@ xen_arch_intr_alloc(void)
 
 	mtx_unlock(&xen_intr_x86_lock);
 	isrc = malloc(sizeof(*isrc), M_XENINTR, M_WAITOK | M_ZERO);
-	isrc->xi_arch.intsrc.is_pic = &xen_intr_pic;
+	isrc->xi_arch.intsrc.is_pic = xen_intr_pic;
 	error = intr_register_source(vector, &isrc->xi_arch.intsrc);
 	if (error != 0)
 		panic("%s(): failed registering interrupt %u, error=%d\n",

@@ -55,6 +55,8 @@
 #include <isa/isareg.h>
 #include <isa/isavar.h>
 
+#include "pic_if.h"
+
 #ifdef __amd64__
 #define	SDT_ATPIC	SDT_SYSIGT
 #define	GSEL_ATPIC	0
@@ -126,7 +128,7 @@ inthand_t
 
 #define	IRQ(ap, ai)	((ap)->at_irqbase + (ai)->at_irq)
 
-const x86pic_func_t atpic_funcs = {
+x86pic_func_t atpic_funcs = {
 	X86PIC_FUNC(pic_register_sources, atpic_register_sources),
 	X86PIC_FUNC(pic_enable_source, atpic_enable_source),
 	X86PIC_FUNC(pic_disable_source, atpic_disable_source),

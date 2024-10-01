@@ -55,6 +55,8 @@
 #include <machine/segments.h>
 #include <x86/iommu/iommu_intrmap.h>
 
+#include "pic_if.h"
+
 #define IOAPIC_ISA_INTS		16
 #define	IOAPIC_MEM_REGION	32
 #define	IOAPIC_REDTBL_LO(i)	(IOAPIC_REDTBL + (i) * 2)
@@ -145,6 +147,8 @@ x86pic_func_t ioapic_template = {
 	X86PIC_END
 };
 
+DEFINE_CLASS_1(io_apic, io_apic_class, ioapic_template, 0, pic_base_class);
+
 static u_int next_ioapic_base;
 static u_int next_id;
 
@@ -156,7 +160,7 @@ static void
 _ioapic_eoi_source(struct intsrc *isrc, int locked)
 {
 	struct ioapic_intsrc *src;
-	struct ioapic *io;
+	struct ioapic *io = device_get_softc(isrc->is_pic);
 	volatile uint32_t *apic_eoi;
 	uint32_t low1;
 
@@ -166,7 +170,6 @@ _ioapic_eoi_source(struct intsrc *isrc, int locked)
 	src = (struct ioapic_intsrc *)isrc;
 	if (src->io_edgetrigger)
 		return;
-	io = (struct ioapic *)isrc->is_pic;
 
 	/*
 	 * Handle targeted EOI for level-triggered pins, if broadcast
@@ -265,7 +268,7 @@ static void
 ioapic_enable_source(x86pic_t pic, struct intsrc *isrc)
 {
 	struct ioapic_intsrc *intpin = (struct ioapic_intsrc *)isrc;
-	struct ioapic *io = (struct ioapic *)isrc->is_pic;
+	struct ioapic *io = device_get_softc(pic);
 	uint32_t flags;
 
 	mtx_lock_spin(&icu_lock);
@@ -282,7 +285,7 @@ static void
 ioapic_disable_source(x86pic_t pic, struct intsrc *isrc, int eoi)
 {
 	struct ioapic_intsrc *intpin = (struct ioapic_intsrc *)isrc;
-	struct ioapic *io = (struct ioapic *)isrc->is_pic;
+	struct ioapic *io = device_get_softc(pic);
 	uint32_t flags;
 
 	mtx_lock_spin(&icu_lock);
@@ -313,7 +316,7 @@ ioapic_eoi_source(x86pic_t pic, struct intsrc *isrc)
 static void
 ioapic_program_intpin(struct ioapic_intsrc *intpin)
 {
-	struct ioapic *io = (struct ioapic *)intpin->io_intsrc.is_pic;
+	struct ioapic *io = device_get_softc(intpin->io_intsrc.is_pic);
 	uint32_t low, high;
 #ifdef IOMMU
 	int error;
@@ -420,7 +423,7 @@ static int
 ioapic_assign_cpu(x86pic_t pic, struct intsrc *isrc, u_int apic_id)
 {
 	struct ioapic_intsrc *intpin = (struct ioapic_intsrc *)isrc;
-	struct ioapic *io = (struct ioapic *)isrc->is_pic;
+	struct ioapic *io = device_get_softc(pic);
 	u_int old_vector, new_vector;
 	u_int old_id;
 
@@ -545,7 +548,7 @@ ioapic_config_intr(x86pic_t pic, struct intsrc *isrc, enum intr_trigger trig,
     enum intr_polarity pol)
 {
 	struct ioapic_intsrc *intpin = (struct ioapic_intsrc *)isrc;
-	struct ioapic *io = (struct ioapic *)isrc->is_pic;
+	struct ioapic *io = device_get_softc(pic);
 	int changed;
 
 	KASSERT(!(trig == INTR_TRIGGER_CONFORM || pol == INTR_POLARITY_CONFORM),
@@ -587,7 +590,7 @@ ioapic_config_intr(x86pic_t pic, struct intsrc *isrc, enum intr_trigger trig,
 static void
 ioapic_resume(x86pic_t pic, bool suspend_cancelled)
 {
-	struct ioapic *io = (struct ioapic *)pic;
+	struct ioapic *io = device_get_softc(pic);
 	int i;
 
 	mtx_lock_spin(&icu_lock);
@@ -624,7 +627,7 @@ ioapic_create(vm_paddr_t addr, int32_t apic_id, int intbase)
 	numintr = ((value & IOART_VER_MAXREDIR) >> MAXREDIRSHIFT) + 1;
 	io = malloc(sizeof(struct ioapic) +
 	    numintr * sizeof(struct ioapic_intsrc), M_IOAPIC, M_WAITOK);
-	io->io_pic = &ioapic_template;
+
 	io->pci_dev = NULL;
 	io->pci_wnd = NULL;
 	mtx_lock_spin(&icu_lock);
@@ -650,6 +653,9 @@ ioapic_create(vm_paddr_t addr, int32_t apic_id, int intbase)
 	io->io_addr = apic;
 	io->io_paddr = addr;
 
+	io->io_pic = intr_create_pic("ioapic-pic", io->io_id, &io_apic_class);
+	device_set_softc(io->io_pic, io);
+
 	if (bootverbose) {
 		printf("ioapic%u: ver 0x%02x maxredir 0x%02x\n", io->io_id,
 		    (value & IOART_VER_VERSION), (value & IOART_VER_MAXREDIR)
@@ -674,7 +680,7 @@ ioapic_create(vm_paddr_t addr, int32_t apic_id, int intbase)
 	bzero(io->io_pins, sizeof(struct ioapic_intsrc) * numintr);
 	mtx_lock_spin(&icu_lock);
 	for (i = 0, intpin = io->io_pins; i < numintr; i++, intpin++) {
-		intpin->io_intsrc.is_pic = (x86pic_t)io;
+		intpin->io_intsrc.is_pic = io->io_pic;
 		intpin->io_intpin = i;
 		intpin->io_irq = intbase + i;
 
@@ -916,10 +922,9 @@ static void
 ioapic_register_sources(x86pic_t pic)
 {
 	struct ioapic_intsrc *pin;
-	struct ioapic *io;
+	struct ioapic *io = device_get_softc(pic);
 	int i;
 
-	io = (struct ioapic *)pic;
 	for (i = 0, pin = io->io_pins; i < io->io_numintr; i++, pin++) {
 		if (pin->io_irq >= 0)
 			intr_register_source(pin->io_irq, &pin->io_intsrc);
