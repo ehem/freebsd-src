@@ -85,7 +85,11 @@ static struct timeout_task intrbalance_task;
 static struct sx intrsrc_lock;
 static struct mtx intrpic_lock;
 static struct mtx intrcnt_lock;
-static TAILQ_HEAD(pics_head, pic) pics;
+struct pic_entr {
+	TAILQ_ENTRY(pic_entr) pics_next;
+	x86pic_t pic;
+};
+static TAILQ_HEAD(pics_head, pic_entr) pics;
 u_int num_io_irqs;
 
 #if defined(SMP) && !defined(EARLY_AP_STARTUP)
@@ -126,10 +130,10 @@ static void	intrcnt_register(struct intsrc *is);
 static int
 intr_pic_registered(x86pic_t pic)
 {
-	x86pic_t p;
+	struct pic_entr *p;
 
-	TAILQ_FOREACH(p, &pics, pics) {
-		if (p == pic)
+	TAILQ_FOREACH(p, &pics, pics_next) {
+		if (p->pic == pic)
 			return (1);
 	}
 	return (0);
@@ -171,15 +175,22 @@ int
 intr_register_pic(x86pic_t pic)
 {
 	int error;
+	struct pic_entr *entr = malloc(sizeof(*entr), M_INTR, M_WAITOK);
+
+	if (entr == NULL)
+		panic("%s(): failed to allocate memory", __func__);
+	entr->pic = pic;
 
 	mtx_lock(&intrpic_lock);
 	if (intr_pic_registered(pic))
 		error = EBUSY;
 	else {
-		TAILQ_INSERT_TAIL(&pics, pic, pics);
+		TAILQ_INSERT_TAIL(&pics, entr, pics_next);
 		error = 0;
 	}
 	mtx_unlock(&intrpic_lock);
+	if (error != 0)
+		free(entr, M_INTR);
 	return (error);
 }
 
@@ -190,7 +201,7 @@ intr_register_pic(x86pic_t pic)
 static void
 intr_init_sources(void *arg)
 {
-	x86pic_t pic;
+	struct pic_entr *pic;
 
 	MPASS(num_io_irqs > 0);
 
@@ -229,8 +240,8 @@ intr_init_sources(void *arg)
 	 * single-threaded at this point in startup so the list of
 	 * PICs shouldn't change.
 	 */
-	TAILQ_FOREACH(pic, &pics, pics)
-		PIC_REGISTER_SOURCES(pic);
+	TAILQ_FOREACH(pic, &pics, pics_next)
+		PIC_REGISTER_SOURCES(pic->pic);
 }
 SYSINIT(intr_init_sources, SI_SUB_INTR, SI_ORDER_FOURTH + 1, intr_init_sources,
     NULL);
@@ -398,25 +409,25 @@ intr_execute_handlers(struct intsrc *isrc, struct trapframe *frame)
 void
 intr_resume(bool suspend_cancelled)
 {
-	x86pic_t pic;
+	struct pic_entr *pic;
 
 #ifndef DEV_ATPIC
 	atpic_reset();
 #endif
 	mtx_lock(&intrpic_lock);
-	TAILQ_FOREACH(pic, &pics, pics)
-		PIC_RESUME(pic, suspend_cancelled);
+	TAILQ_FOREACH(pic, &pics, pics_next)
+		PIC_RESUME(pic->pic, suspend_cancelled);
 	mtx_unlock(&intrpic_lock);
 }
 
 void
 intr_suspend(void)
 {
-	x86pic_t pic;
+	struct pic_entr *pic;
 
 	mtx_lock(&intrpic_lock);
-	TAILQ_FOREACH_REVERSE(pic, &pics, pics_head, pics)
-		PIC_SUSPEND(pic);
+	TAILQ_FOREACH_REVERSE(pic, &pics, pics_head, pics_next)
+		PIC_SUSPEND(pic->pic);
 	mtx_unlock(&intrpic_lock);
 }
 
