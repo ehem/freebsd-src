@@ -31,6 +31,8 @@
 INTERFACE pic;
 
 HEADER {
+	#include "intr_event_if.h"
+
 	/* Flags for pic_disable_source() */
 	enum {
 		PIC_EOI,
