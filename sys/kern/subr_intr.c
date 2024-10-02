@@ -614,40 +614,37 @@ iscr_setup_filter(struct intr_irqsrc *isrc, const char *name,
  *  Interrupt source pre_ithread method for MI interrupt framework.
  */
 static void
-intr_isrc_pre_ithread(void *arg)
+intr_isrc_pre_ithread(device_t pic, interrupt_t *isrc)
 {
-	struct intr_irqsrc *isrc = arg;
 
-	PIC_PRE_ITHREAD(isrc->isrc_dev, isrc);
+	PIC_PRE_ITHREAD(pic, isrc);
 }
 
 /*
  *  Interrupt source post_ithread method for MI interrupt framework.
  */
 static void
-intr_isrc_post_ithread(void *arg)
+intr_isrc_post_ithread(device_t pic, interrupt_t *isrc)
 {
-	struct intr_irqsrc *isrc = arg;
 
-	PIC_POST_ITHREAD(isrc->isrc_dev, isrc);
+	PIC_POST_ITHREAD(pic, isrc);
 }
 
 /*
  *  Interrupt source post_filter method for MI interrupt framework.
  */
 static void
-intr_isrc_post_filter(void *arg)
+intr_isrc_post_filter(device_t pic, interrupt_t *isrc)
 {
-	struct intr_irqsrc *isrc = arg;
 
-	PIC_POST_FILTER(isrc->isrc_dev, isrc);
+	PIC_POST_FILTER(pic, isrc);
 }
 
 /*
  *  Interrupt source assign_cpu method for MI interrupt framework.
  */
 static int
-intr_isrc_assign_cpu(void *arg, int cpu)
+intr_isrc_assign_cpu(device_t pic, interrupt_t *arg, u_int cpu)
 {
 #ifdef SMP
 	struct intr_irqsrc *isrc = arg;
@@ -669,7 +666,7 @@ intr_isrc_assign_cpu(void *arg, int cpu)
 	 * informed if the call is successful.
 	 */
 	if (irq_assign_cpu) {
-		error = PIC_BIND_INTR(isrc->isrc_dev, isrc);
+		error = PIC_BIND_INTR(pic, isrc);
 		if (error) {
 			CPU_ZERO(&isrc->isrc_cpu);
 			mtx_unlock(&isrc_table_lock);
@@ -683,6 +680,17 @@ intr_isrc_assign_cpu(void *arg, int cpu)
 #endif
 }
 
+static device_method_t pic_base_funcs[] = {
+	DEVMETHOD(intr_event_pre_ithread, intr_isrc_pre_ithread),
+	DEVMETHOD(intr_event_post_ithread, intr_isrc_post_ithread),
+	DEVMETHOD(intr_event_post_filter, intr_isrc_post_filter),
+	DEVMETHOD(intr_event_assign_cpu, intr_isrc_assign_cpu),
+
+	DEVMETHOD_END
+};
+
+DEFINE_CLASS(pic_base, pic_base_funcs, 0);
+
 /*
  *  Create interrupt event for interrupt source.
  */
@@ -692,9 +700,8 @@ isrc_event_create(struct intr_irqsrc *isrc)
 	struct intr_event *ie;
 	int error;
 
-	error = intr_event_create(&ie, isrc, 0, isrc->isrc_irq,
-	    intr_isrc_pre_ithread, intr_isrc_post_ithread, intr_isrc_post_filter,
-	    intr_isrc_assign_cpu, "%s:", isrc->isrc_name);
+	error = intr_event_create_device(&ie, isrc->isrc_dev, isrc,
+	    isrc->isrc_irq, 0, "%s:", isrc->isrc_name);
 	if (error)
 		return (error);
 
