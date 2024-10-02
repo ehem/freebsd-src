@@ -80,7 +80,7 @@ static device_method_t  ps3pic_methods[] = {
 	DEVMETHOD(pic_mask,		ps3pic_mask),
 	DEVMETHOD(pic_unmask,		ps3pic_unmask),
 
-	{ 0, 0 },
+	DEVMETHOD_END
 };
 
 DEFINE_CLASS_1(ps3pic, ps3pic_driver, ps3pic_methods,

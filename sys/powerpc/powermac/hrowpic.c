@@ -83,7 +83,7 @@ static device_method_t  hrowpic_methods[] = {
 	DEVMETHOD(pic_mask,		hrowpic_mask),
 	DEVMETHOD(pic_unmask,		hrowpic_unmask),
 
-	{ 0, 0 },
+	DEVMETHOD_END
 };
 
 DEFINE_CLASS_1(hrowpic, hrowpic_driver, hrowpic_methods,

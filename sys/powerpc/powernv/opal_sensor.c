@@ -244,13 +244,12 @@ opal_sensor_attach(device_t dev)
 static device_method_t opal_sensor_methods[] = {
 	DEVMETHOD(device_probe,		opal_sensor_probe),
 	DEVMETHOD(device_attach,		opal_sensor_attach),
+
+	DEVMETHOD_END
 };
 
-static driver_t opal_sensor_driver = {
-        "opal_sensor",
-        opal_sensor_methods,
-        sizeof(struct opal_sensor_softc)
-};
+DEFINE_CLASS_0(opal_sensor, opal_sensor_driver, opal_sensor_methods,
+    sizeof(struct opal_sensor_softc));
 
 DRIVER_MODULE(opal_sensor, opalsens, opal_sensor_driver, NULL, NULL);
 
@@ -315,10 +314,6 @@ static device_method_t opalsens_methods[] = {
 	DEVMETHOD_END
 };
 
-static driver_t opalsens_driver = {
-        "opalsens",
-        opalsens_methods,
-        0
-};
+DEFINE_CLASS_0(opalsens, opalsens_driver, opalsens_methods, 0);
 
 DRIVER_MODULE(opalsens, opal, opalsens_driver, NULL, NULL);

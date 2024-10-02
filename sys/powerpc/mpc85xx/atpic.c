@@ -98,7 +98,7 @@ static device_method_t atpic_isa_methods[] = {
 
 	DEVMETHOD(pic_translate_code,	atpic_ofw_translate_code),
 
-	{ 0, 0 },
+	DEVMETHOD_END
 };
 
 DEFINE_CLASS_1(atpic, atpic_isa_driver, atpic_isa_methods,

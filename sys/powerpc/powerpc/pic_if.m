@@ -34,7 +34,7 @@
 INTERFACE pic;
 
 HEADER {
-	#include "intr_event_if.h"
+#include "intr_event_if.h"
 };
 
 CODE {
