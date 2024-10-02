@@ -28,14 +28,20 @@
 #ifndef	_SYS_MACHINE_INTERRUPT_H_
 #define	_SYS_MACHINE_INTERRUPT_H_
 
+#include <sys/kobj.h>
+
 /* FreeBSD standard interrupt controller interface */
 
 typedef struct intsrc interrupt_t;
+
+DECLARE_CLASS(pic_base_class);
 
 /* FreeBSD standard interrupt controller interface */
 
 #include <sys/interrupt.h>
 
 #include <machine/intr_machdep.h>
+
+typedef struct { } pic_base_softc_t;
 
 #endif	/* _SYS_MACHINE_INTERRUPT_H_ */

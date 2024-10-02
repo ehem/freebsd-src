@@ -91,6 +91,7 @@ struct ioapic_intsrc {
 };
 
 struct ioapic {
+	pic_base_softc_t pic_base_softc;
 	struct pic io_pic;
 	u_int io_id:8;			/* logical ID */
 	u_int io_apic_id:8;		/* Id as enumerated by MADT */
@@ -1025,7 +1026,8 @@ static device_method_t ioapic_pci_methods[] = {
 	DEVMETHOD_END
 };
 
-DEFINE_CLASS_0(ioapic, ioapic_pci_driver, ioapic_pci_methods, 0);
+DEFINE_CLASS_0(ioapic, ioapic_pci_driver, ioapic_pci_methods,
+    sizeof(pic_base_softc_t));
 
 DRIVER_MODULE(ioapic, pci, ioapic_pci_driver, 0, 0);
 
@@ -1116,7 +1118,7 @@ static device_method_t apic_methods[] = {
 	DEVMETHOD_END
 };
 
-DEFINE_CLASS_0(apic, apic_driver, apic_methods, 0);
+DEFINE_CLASS_0(apic, apic_driver, apic_methods, sizeof(pic_base_softc_t));
 
 DRIVER_MODULE(apic, nexus, apic_driver, 0, 0);
 
