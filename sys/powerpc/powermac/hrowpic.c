@@ -45,7 +45,7 @@
 #include <dev/ofw/openfirm.h>
 
 #include <machine/bus.h>
-#include <machine/intr_machdep.h>
+#include <machine/interrupt.h>
 #include <machine/md_var.h>
 #include <machine/pio.h>
 #include <machine/resource.h>
@@ -86,11 +86,8 @@ static device_method_t  hrowpic_methods[] = {
 	{ 0, 0 },
 };
 
-static driver_t hrowpic_driver = {
-	"hrowpic",
-	hrowpic_methods,
-	sizeof(struct hrowpic_softc)
-};
+DEFINE_CLASS_1(hrowpic, hrowpic_driver, hrowpic_methods,
+    sizeof(struct hrowpic_softc), pic_base_class);
 
 DRIVER_MODULE(hrowpic, macio, hrowpic_driver, 0, 0);
 

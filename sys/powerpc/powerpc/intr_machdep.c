@@ -311,9 +311,8 @@ powerpc_map_irq(struct powerpc_intr *i)
 }
 
 static void
-powerpc_intr_eoi(void *arg)
+powerpc_intr_eoi(device_t pic, interrupt_t *i)
 {
-	struct powerpc_intr *i = arg;
 
 	if (i->ipi)
 		return;
@@ -322,27 +321,24 @@ powerpc_intr_eoi(void *arg)
 }
 
 static void
-powerpc_intr_pre_ithread(void *arg)
+powerpc_intr_pre_ithread(device_t pic, interrupt_t *i)
 {
-	struct powerpc_intr *i = arg;
 
 	PIC_MASK(i->pic, i->intline, i->priv);
 	PIC_EOI(i->pic, i->intline, i->priv);
 }
 
 static void
-powerpc_intr_post_ithread(void *arg)
+powerpc_intr_post_ithread(device_t pic, interrupt_t *i)
 {
-	struct powerpc_intr *i = arg;
 
 	PIC_UNMASK(i->pic, i->intline, i->priv);
 }
 
 static int
-powerpc_assign_intr_cpu(void *arg, int cpu)
+powerpc_assign_intr_cpu(device_t pic, interrupt_t *i, u_int cpu)
 {
 #ifdef SMP
-	struct powerpc_intr *i = arg;
 
 	if (cpu == NOCPU)
 		i->pi_cpuset = all_cpus;
@@ -357,6 +353,17 @@ powerpc_assign_intr_cpu(void *arg, int cpu)
 	return (EOPNOTSUPP);
 #endif
 }
+
+static device_method_t pic_base_funcs[] = {
+	DEVMETHOD(intr_event_pre_ithread, powerpc_intr_pre_ithread),
+	DEVMETHOD(intr_event_post_ithread, powerpc_intr_post_ithread),
+	DEVMETHOD(intr_event_post_filter, powerpc_intr_eoi),
+	DEVMETHOD(intr_event_assign_cpu, powerpc_assign_intr_cpu),
+
+	DEVMETHOD_END
+};
+
+DEFINE_CLASS(pic_base, pic_base_funcs, 0);
 
 u_int
 powerpc_register_pic(device_t dev, uint32_t node, u_int irqs, u_int ipis,
@@ -523,9 +530,8 @@ powerpc_setup_intr(const char *name, u_int irq, driver_filter_t filter,
 		return (ENOMEM);
 
 	if (i->event == NULL) {
-		error = intr_event_create(&i->event, (void *)i, 0, irq,
-		    powerpc_intr_pre_ithread, powerpc_intr_post_ithread,
-		    powerpc_intr_eoi, powerpc_assign_intr_cpu, "irq%u:", irq);
+		error = intr_event_create_device(&i->event, i->pic, i, irq, 0,
+		    "irq%u:", irq);
 		if (error)
 			return (error);
 

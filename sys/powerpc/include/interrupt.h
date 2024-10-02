@@ -28,9 +28,13 @@
 #ifndef	_SYS_MACHINE_INTERRUPT_H_
 #define	_SYS_MACHINE_INTERRUPT_H_
 
+#include <sys/kobj.h>
+
 /* FreeBSD standard interrupt controller interface */
 
 typedef struct powerpc_intr interrupt_t;
+
+DECLARE_CLASS(pic_base_class);
 
 /* FreeBSD standard interrupt controller interface */
 
