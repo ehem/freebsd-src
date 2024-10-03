@@ -54,8 +54,8 @@ static pic_disable_t		aplic_disable_intr;
 static pic_enable_t		aplic_enable_intr;
 static pic_map_intr_t		aplic_map_intr;
 static pic_setup_intr_t		aplic_setup_intr;
-static pic_post_ithread_t	aplic_post_ithread;
-static pic_pre_ithread_t	aplic_pre_ithread;
+static intr_event_post_ithread_t aplic_post_ithread;
+static intr_event_pre_ithread_t	aplic_pre_ithread;
 static pic_bind_intr_t		aplic_bind_intr;
 
 struct aplic_irqsrc {
@@ -538,12 +538,14 @@ static device_method_t aplic_methods[] = {
 	DEVMETHOD(device_probe,		aplic_probe),
 	DEVMETHOD(device_attach,	aplic_attach),
 
+	/* Interrupt event interface */
+	DEVMETHOD(intr_event_pre_ithread,	aplic_pre_ithread),
+	DEVMETHOD(intr_event_post_ithread,	aplic_post_ithread),
+	DEVMETHOD(intr_event_post_filter,	aplic_post_ithread),
+
 	DEVMETHOD(pic_disable,		aplic_disable_intr),
 	DEVMETHOD(pic_enable,		aplic_enable_intr),
 	DEVMETHOD(pic_map_intr,		aplic_map_intr),
-	DEVMETHOD(pic_pre_ithread,	aplic_pre_ithread),
-	DEVMETHOD(pic_post_ithread,	aplic_post_ithread),
-	DEVMETHOD(pic_post_filter,	aplic_post_ithread),
 	DEVMETHOD(pic_setup_intr,	aplic_setup_intr),
 	DEVMETHOD(pic_bind_intr,	aplic_bind_intr),
 
