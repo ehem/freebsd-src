@@ -105,8 +105,6 @@ static MALLOC_DEFINE(M_INTR, "intr", "Interrupt Sources");
 
 static int	intr_assign_cpu(device_t pic, interrupt_t *isrc, u_int cpu);
 static void	intr_disable_src(device_t pic, interrupt_t *isrc);
-static void	intr_enable_src(device_t pic, interrupt_t *isrc);
-static void	intr_eoi_source(device_t pic, interrupt_t *isrc);
 static void	intr_init(void *__dummy);
 static int	intr_pic_registered(x86pic_t pic);
 static void	intrcnt_setname(const char *name, int index);
@@ -349,20 +347,6 @@ intr_disable_src(device_t pic, interrupt_t *isrc)
 	PIC_DISABLE_SOURCE(pic, isrc, PIC_EOI);
 }
 
-static void
-intr_enable_src(device_t pic, interrupt_t *isrc)
-{
-
-	PIC_ENABLE_SOURCE(pic, isrc);
-}
-
-static void
-intr_eoi_source(device_t pic, interrupt_t *isrc)
-{
-
-	PIC_EOI_SOURCE(pic, isrc);
-}
-
 void
 intr_execute_handlers(struct intsrc *isrc, struct trapframe *frame)
 {
@@ -458,8 +442,6 @@ intr_assign_cpu(device_t pic, interrupt_t *isrc, u_int cpu)
 
 static device_method_t pic_base_funcs[] = {
 	DEVMETHOD(intr_event_pre_ithread, intr_disable_src),
-	DEVMETHOD(intr_event_post_ithread, intr_enable_src),
-	DEVMETHOD(intr_event_post_filter, intr_eoi_source),
 	DEVMETHOD(intr_event_assign_cpu, intr_assign_cpu),
 
 	DEVMETHOD_END

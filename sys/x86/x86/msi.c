@@ -139,6 +139,9 @@ static int	msi_assign_cpu(x86pic_t pic, struct intsrc *isrc,
 		    u_int apic_id);
 
 x86pic_func_t msi_funcs = {
+	DEVMETHOD(intr_event_post_ithread,	msi_enable_source),
+	DEVMETHOD(intr_event_post_filter,	msi_eoi_source),
+
 	X86PIC_FUNC(pic_enable_source,	msi_enable_source),
 	X86PIC_FUNC(pic_disable_source,	msi_disable_source),
 	X86PIC_FUNC(pic_eoi_source,	msi_eoi_source),

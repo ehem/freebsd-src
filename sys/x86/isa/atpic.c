@@ -129,6 +129,9 @@ inthand_t
 #define	IRQ(ap, ai)	((ap)->at_irqbase + (ai)->at_irq)
 
 x86pic_func_t atpic_funcs = {
+	DEVMETHOD(intr_event_post_ithread,	atpic_enable_source),
+	DEVMETHOD(intr_event_post_filter,	atpic_eoi),
+
 	X86PIC_FUNC(pic_register_sources, atpic_register_sources),
 	X86PIC_FUNC(pic_enable_source, atpic_enable_source),
 	X86PIC_FUNC(pic_disable_source, atpic_disable_source),
