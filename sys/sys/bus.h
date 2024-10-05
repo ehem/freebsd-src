@@ -160,6 +160,7 @@ struct devreq {
 #define	DEVF_RESET_DETACH	0x0000001	/* Detach drivers vs suspend
 						   device */
 #define DEVICE_UNIT_ANY		(-1)
+#define DEVICE_UNIT_MAX		(~(unsigned int)0 >> 1)
 
 #ifdef _KERNEL
 

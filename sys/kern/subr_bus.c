@@ -1165,7 +1165,12 @@ static int
 devclass_alloc_unit(devclass_t dc, device_t dev, int *unitp)
 {
 	const char *s;
-	int unit = *unitp;
+	u_int unit = *unitp;
+
+	_Static_assert((int)DEVICE_UNIT_MAX > 0,
+	    "DEVICE_UNIT_MAX must be non-negative when converted to integer");
+	_Static_assert(DEVICE_UNIT_MAX < DEVICE_UNIT_ANY,
+	    "DEVICE_UNIT_MAX must be less than DEVICE_UNIT_ANY");
 
 	PDEBUG(("unit %d in devclass %s", unit, DEVCLANAME(dc)));
 
@@ -1186,7 +1191,7 @@ devclass_alloc_unit(devclass_t dc, device_t dev, int *unitp)
 	} else {
 		/* Unwired device, find the next available slot for it */
 		unit = 0;
-		for (unit = 0;; unit++) {
+		for (unit = 0; unit < DEVICE_UNIT_MAX; unit++) {
 			/* If this device slot is already in use, skip it. */
 			if (unit < dc->maxunit && dc->devices[unit] != NULL)
 				continue;
@@ -1200,6 +1205,9 @@ devclass_alloc_unit(devclass_t dc, device_t dev, int *unitp)
 		}
 	}
 
+	if (__predict_false(unit >= DEVICE_UNIT_MAX))
+		return (ERANGE);
+
 	/*
 	 * We've selected a unit beyond the length of the table, so let's
 	 * extend the table to make room for all units up to and including
@@ -1210,8 +1218,8 @@ devclass_alloc_unit(devclass_t dc, device_t dev, int *unitp)
 		int newsize;
 
 		oldlist = dc->devices;
-		newsize = roundup((unit + 1),
-		    MAX(1, MINALLOCSIZE / sizeof(device_t)));
+		newsize = MIN(DEVICE_UNIT_MAX, roundup((unit + 1),
+		    MAX(1, MINALLOCSIZE / sizeof(device_t))));
 		newlist = malloc(sizeof(device_t) * newsize, M_BUS, M_NOWAIT);
 		if (!newlist)
 			return (ENOMEM);
