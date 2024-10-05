@@ -352,7 +352,8 @@ device_sysctl_fini(device_t dev)
 	dev->sysctl_tree = NULL;
 }
 
-static struct device_list bus_data_devices;
+static struct device_list bus_data_devices =
+    TAILQ_HEAD_INITIALIZER(bus_data_devices);
 static int bus_data_generation = 1;
 
 static kobj_method_t null_methods[] = {
@@ -5069,7 +5070,6 @@ root_bus_module_handler(module_t mod, int what, void* arg)
 {
 	switch (what) {
 	case MOD_LOAD:
-		TAILQ_INIT(&bus_data_devices);
 		kobj_class_compile((kobj_class_t) &root_driver);
 		root_bus = make_device(NULL, "root", 0);
 		root_bus->desc = "System root bus";
