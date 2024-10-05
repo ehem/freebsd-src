@@ -5854,13 +5854,17 @@ devctl2_ioctl(struct cdev *cdev, u_long cmd, caddr_t data, int fflag,
 			device_frozen = false;
 		}
 		break;
-	case DEV_RESET:
+	case DEV_RESET: {
+		device_t parent;
+
 		if ((req->dr_flags & ~(DEVF_RESET_DETACH)) != 0) {
 			error = EINVAL;
 			break;
 		}
-		error = BUS_RESET_CHILD(device_get_parent(dev), dev,
-		    req->dr_flags);
+		parent = device_get_parent(dev);
+		error = parent != NULL ? BUS_RESET_CHILD(parent, dev,
+		    req->dr_flags) : EINVAL;
+		}
 		break;
 	case DEV_GET_PATH: {
 		struct sbuf *sb;
