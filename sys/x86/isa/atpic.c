@@ -144,8 +144,12 @@ inthand_t
 	}
 
 #define	INTSRC(irq)							\
-	{ { &atpics[(irq) / 8].at_pic }, IDTVEC(atpic_intr ## irq ),	\
-	    IDTVEC(atpic_intr ## irq ## _pti), (irq) % 8 }
+	{								\
+		.at_intsrc = { &atpics[(irq) / 8].at_pic },		\
+		.at_intr = IDTVEC(atpic_intr ## irq ),			\
+		.at_intr_pti = IDTVEC(atpic_intr ## irq ## _pti),	\
+		.at_irq = (irq) % 8,					\
+	}
 
 static struct atpic atpics[] = {
 	ATPIC(IO_ICU1, 0, atpic_eoi_master),
