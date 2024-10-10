@@ -70,6 +70,38 @@
 
 #define	NUM_ISA_IRQS		16
 
+struct atpic {
+	struct pic at_pic;
+	int	at_ioaddr;
+	int	at_irqbase;
+	uint8_t	at_intbase;
+	uint8_t	at_imen;
+};
+
+struct atpic_intsrc {
+	struct intsrc at_intsrc;
+	inthand_t *at_intr, *at_intr_pti;
+	int	at_irq;			/* Relative to PIC base. */
+	enum intr_trigger at_trigger;
+	u_long	at_count;
+	u_long	at_straycount;
+};
+
+static void atpic_register_sources(struct pic *pic);
+static void atpic_enable_source(struct intsrc *isrc);
+static void atpic_disable_source(struct intsrc *isrc, int eoi);
+static void atpic_eoi_master(struct intsrc *isrc);
+static void atpic_eoi_slave(struct intsrc *isrc);
+static void atpic_enable_intr(struct intsrc *isrc);
+static void atpic_disable_intr(struct intsrc *isrc);
+static int atpic_vector(struct intsrc *isrc);
+static void atpic_resume(struct pic *pic, bool suspend_cancelled);
+static int atpic_source_pending(struct intsrc *isrc);
+static int atpic_config_intr(struct intsrc *isrc, enum intr_trigger trig,
+    enum intr_polarity pol);
+static int atpic_assign_cpu(struct intsrc *isrc, u_int apic_id);
+static void i8259_init(struct atpic *pic, int slave);
+
 static void	atpic_init(void *dummy);
 
 inthand_t
@@ -114,38 +146,6 @@ inthand_t
 #define	INTSRC(irq)							\
 	{ { &atpics[(irq) / 8].at_pic }, IDTVEC(atpic_intr ## irq ),	\
 	    IDTVEC(atpic_intr ## irq ## _pti), (irq) % 8 }
-
-struct atpic {
-	struct pic at_pic;
-	int	at_ioaddr;
-	int	at_irqbase;
-	uint8_t	at_intbase;
-	uint8_t	at_imen;
-};
-
-struct atpic_intsrc {
-	struct intsrc at_intsrc;
-	inthand_t *at_intr, *at_intr_pti;
-	int	at_irq;			/* Relative to PIC base. */
-	enum intr_trigger at_trigger;
-	u_long	at_count;
-	u_long	at_straycount;
-};
-
-static void atpic_register_sources(struct pic *pic);
-static void atpic_enable_source(struct intsrc *isrc);
-static void atpic_disable_source(struct intsrc *isrc, int eoi);
-static void atpic_eoi_master(struct intsrc *isrc);
-static void atpic_eoi_slave(struct intsrc *isrc);
-static void atpic_enable_intr(struct intsrc *isrc);
-static void atpic_disable_intr(struct intsrc *isrc);
-static int atpic_vector(struct intsrc *isrc);
-static void atpic_resume(struct pic *pic, bool suspend_cancelled);
-static int atpic_source_pending(struct intsrc *isrc);
-static int atpic_config_intr(struct intsrc *isrc, enum intr_trigger trig,
-    enum intr_polarity pol);
-static int atpic_assign_cpu(struct intsrc *isrc, u_int apic_id);
-static void i8259_init(struct atpic *pic, int slave);
 
 static struct atpic atpics[] = {
 	ATPIC(IO_ICU1, 0, atpic_eoi_master),
