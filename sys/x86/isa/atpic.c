@@ -126,19 +126,21 @@ inthand_t
 
 #define	IRQ(ap, ai)	((ap)->at_irqbase + (ai)->at_irq)
 
+const struct pic atpic_funcs = {
+	.pic_register_sources = atpic_register_sources,
+	.pic_enable_source = atpic_enable_source,
+	.pic_disable_source = atpic_disable_source,
+	.pic_eoi_source = atpic_eoi,
+	.pic_enable_intr = atpic_enable_intr,
+	.pic_disable_intr = atpic_disable_intr,
+	.pic_source_pending = atpic_source_pending,
+	.pic_resume = atpic_resume,
+	.pic_config_intr = atpic_config_intr,
+	.pic_assign_cpu = atpic_assign_cpu,
+};
+
 #define	ATPIC(io, base, eoi) {						\
-		.at_pic = {						\
-			.pic_register_sources = atpic_register_sources,	\
-			.pic_enable_source = atpic_enable_source,	\
-			.pic_disable_source = atpic_disable_source,	\
-			.pic_eoi_source = atpic_eoi,			\
-			.pic_enable_intr = atpic_enable_intr,		\
-			.pic_disable_intr = atpic_disable_intr,		\
-			.pic_source_pending = atpic_source_pending,	\
-			.pic_resume = atpic_resume,			\
-			.pic_config_intr = atpic_config_intr,		\
-			.pic_assign_cpu = atpic_assign_cpu		\
-		},							\
+		.at_pic = atpic_funcs,					\
 		.at_eoi_func = (eoi),					\
 		.at_ioaddr = (io),					\
 		.at_irqbase = (base),					\
