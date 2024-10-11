@@ -316,6 +316,9 @@ powerpc_intr_eoi(void *arg)
 {
 	struct powerpc_intr *i = arg;
 
+	if (i->ipi)
+		return;
+
 	PIC_EOI(i->pic, i->intline, i->priv);
 }
 
@@ -480,7 +483,6 @@ powerpc_enable_intr(void)
 			 */
 			i = intr_lookup(MAP_IRQ(piclist[n].node,
 			    piclist[n].irqs));
-			i->event->ie_post_filter = NULL;
 			i->ipi = 1;
 		}
 	}
