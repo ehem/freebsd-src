@@ -42,6 +42,6 @@ DECLARE_CLASS(pic_base_class);
 
 #include <machine/intr_machdep.h>
 
-typedef struct { } pic_base_softc_t;
+typedef struct { device_t next, prev; } pic_base_softc_t;
 
 #endif	/* _SYS_MACHINE_INTERRUPT_H_ */
