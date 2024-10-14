@@ -90,7 +90,6 @@ struct powerpc_intr {
 	struct intr_event event;
 	long	*cntp;
 	void	*priv;		/* PIC-private data */
-	device_t pic;
 	u_int	irq;
 	u_int	intline;
 	u_int	vector;
@@ -241,8 +240,8 @@ smp_intr_init(void *dummy __unused)
 	for (vector = 0; vector < nvectors; vector++) {
 		i = powerpc_intrs[vector];
 		if (i != NULL && !CK_SLIST_EMPTY(&i->event.ie_handlers) &&
-		    i->pic == root_pic)
-			PIC_BIND(i->pic, i->intline, i->pi_cpuset, &i->priv);
+		    i->event.ie_pic == root_pic)
+			PIC_BIND(i->event.ie_pic, i->intline, i->pi_cpuset, &i->priv);
 	}
 
 	root = device_lookup_by_name("root0");
@@ -299,7 +298,6 @@ intr_lookup(u_int irq)
 	i->trig = INTR_TRIGGER_CONFORM;
 	i->pol = INTR_POLARITY_CONFORM;
 	i->irq = irq;
-	i->pic = NULL;
 	i->vector = -1;
 	i->fwcode = 0;
 	i->ipi = 0;
@@ -321,7 +319,7 @@ intr_lookup(u_int irq)
 	}
 
 	if (iscan == NULL && i->vector != -1) {
-		error = intr_event_init(&i->event, i->pic, irq, 0,
+		error = intr_event_init(&i->event, pic, irq, 0,
 		    "irq%u:", irq);
 		if (error == 0) {
 			powerpc_intrs[i->vector] = i;
@@ -360,11 +358,11 @@ powerpc_map_irq(struct powerpc_intr *i)
 		return (EINVAL);
 
 	i->intline = i->irq - p->base;
-	i->pic = p->dev;
+	i->event.ie_pic = p->dev;
 
 	/* Try a best guess if that failed */
-	if (i->pic == NULL)
-		i->pic = root_pic;
+	if (i->event.ie_pic == NULL)
+		i->event.ie_pic = root_pic;
 
 	return (0);
 }
@@ -373,22 +371,22 @@ static void
 powerpc_intr_eoi(device_t pic, interrupt_t *i)
 {
 
-	PIC_EOI(i->pic, i->intline, i->priv);
+	PIC_EOI(i->event.ie_pic, i->intline, i->priv);
 }
 
 static void
 powerpc_intr_pre_ithread(device_t pic, interrupt_t *i)
 {
 
-	PIC_MASK(i->pic, i->intline, i->priv);
-	PIC_EOI(i->pic, i->intline, i->priv);
+	PIC_MASK(i->event.ie_pic, i->intline, i->priv);
+	PIC_EOI(i->event.ie_pic, i->intline, i->priv);
 }
 
 static void
 powerpc_intr_post_ithread(device_t pic, interrupt_t *i)
 {
 
-	PIC_UNMASK(i->pic, i->intline, i->priv);
+	PIC_UNMASK(i->event.ie_pic, i->intline, i->priv);
 }
 
 static int
@@ -401,8 +399,8 @@ powerpc_assign_intr_cpu(device_t pic, interrupt_t *i, u_int cpu)
 	else
 		CPU_SETOF(cpu, &i->pi_cpuset);
 
-	if (!cold && i->pic != NULL && i->pic == root_pic)
-		PIC_BIND(i->pic, i->intline, i->pi_cpuset, &i->priv);
+	if (!cold && i->event.ie_pic != NULL && i->event.ie_pic == root_pic)
+		PIC_BIND(i->event.ie_pic, i->intline, i->pi_cpuset, &i->priv);
 
 	return (0);
 #else
@@ -561,14 +559,14 @@ powerpc_enable_intr(void)
 			continue;
 
 		if (i->trig == INTR_TRIGGER_INVALID)
-			PIC_TRANSLATE_CODE(i->pic, i->intline, i->fwcode,
+			PIC_TRANSLATE_CODE(i->event.ie_pic, i->intline, i->fwcode,
 			    &i->trig, &i->pol);
 		if (i->trig != INTR_TRIGGER_CONFORM ||
 		    i->pol != INTR_POLARITY_CONFORM)
-			PIC_CONFIG(i->pic, i->intline, i->trig, i->pol);
+			PIC_CONFIG(i->event.ie_pic, i->intline, i->trig, i->pol);
 
 		if (!CK_SLIST_EMPTY(&i->event.ie_handlers))
-			PIC_ENABLE(i->pic, i->intline, vector, &i->priv);
+			PIC_ENABLE(i->event.ie_pic, i->intline, vector, &i->priv);
 	}
 
 	return (0);
@@ -607,18 +605,18 @@ powerpc_setup_intr(const char *name, u_int irq, driver_filter_t filter,
 
 		if (!error) {
 			if (i->trig == INTR_TRIGGER_INVALID)
-				PIC_TRANSLATE_CODE(i->pic, i->intline,
+				PIC_TRANSLATE_CODE(i->event.ie_pic, i->intline,
 				    i->fwcode, &i->trig, &i->pol);
 
 			if (i->trig != INTR_TRIGGER_CONFORM ||
 			    i->pol != INTR_POLARITY_CONFORM)
-				PIC_CONFIG(i->pic, i->intline, i->trig, i->pol);
+				PIC_CONFIG(i->event.ie_pic, i->intline, i->trig, i->pol);
 
-			if (i->pic == root_pic)
-				PIC_BIND(i->pic, i->intline, i->pi_cpuset, &i->priv);
+			if (i->event.ie_pic == root_pic)
+				PIC_BIND(i->event.ie_pic, i->intline, i->pi_cpuset, &i->priv);
 
 			if (enable)
-				PIC_ENABLE(i->pic, i->intline, i->vector,
+				PIC_ENABLE(i->event.ie_pic, i->intline, i->vector,
 				    &i->priv);
 		}
 	}
@@ -659,10 +657,10 @@ powerpc_fw_config_intr(int irq, int sense_code)
 	i->pol = INTR_POLARITY_CONFORM;
 	i->fwcode = sense_code;
 
-	if (!cold && i->pic != NULL) {
-		PIC_TRANSLATE_CODE(i->pic, i->intline, i->fwcode, &i->trig,
+	if (!cold && i->event.ie_pic != NULL) {
+		PIC_TRANSLATE_CODE(i->event.ie_pic, i->intline, i->fwcode, &i->trig,
 		    &i->pol);
-		PIC_CONFIG(i->pic, i->intline, i->trig, i->pol);
+		PIC_CONFIG(i->event.ie_pic, i->intline, i->trig, i->pol);
 	}
 
 	return (0);
@@ -680,8 +678,8 @@ powerpc_config_intr(int irq, enum intr_trigger trig, enum intr_polarity pol)
 	i->trig = trig;
 	i->pol = pol;
 
-	if (!cold && i->pic != NULL)
-		PIC_CONFIG(i->pic, i->intline, trig, pol);
+	if (!cold && i->event.ie_pic != NULL)
+		PIC_CONFIG(i->event.ie_pic, i->intline, trig, pol);
 
 	return (0);
 }
@@ -705,7 +703,7 @@ powerpc_dispatch_intr(u_int vector, struct trapframe *tf)
 	 * This prevents races in IPI handling.
 	 */
 	if (i->ipi)
-		PIC_EOI(i->pic, i->intline, i->priv);
+		PIC_EOI(i->event.ie_pic, i->intline, i->priv);
 
 	if (intr_event_handle(ie, tf) != 0) {
 		goto stray;
@@ -722,7 +720,7 @@ stray:
 		}
 	}
 	if (i != NULL)
-		PIC_MASK(i->pic, i->intline, i->priv);
+		PIC_MASK(i->event.ie_pic, i->intline, i->priv);
 }
 
 void
@@ -731,10 +729,10 @@ powerpc_intr_mask(u_int irq)
 	struct powerpc_intr *i;
 
 	i = intr_lookup(irq);
-	if (i == NULL || i->pic == NULL)
+	if (i == NULL || i->event.ie_pic == NULL)
 		return;
 
-	PIC_MASK(i->pic, i->intline, i->priv);
+	PIC_MASK(i->event.ie_pic, i->intline, i->priv);
 }
 
 void
@@ -743,8 +741,8 @@ powerpc_intr_unmask(u_int irq)
 	struct powerpc_intr *i;
 
 	i = intr_lookup(irq);
-	if (i == NULL || i->pic == NULL)
+	if (i == NULL || i->event.ie_pic == NULL)
 		return;
 
-	PIC_UNMASK(i->pic, i->intline, i->priv);
+	PIC_UNMASK(i->event.ie_pic, i->intline, i->priv);
 }
