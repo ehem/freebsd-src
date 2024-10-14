@@ -278,15 +278,14 @@ intr_event_update(struct intr_event *ie)
 }
 
 static int
-intr_event_initv(struct intr_event *ie, device_t pic, interrupt_t *source,
-    u_int irq, int flags, const char *fmt, __va_list ap)
+intr_event_initv(struct intr_event *ie, device_t pic, u_int irq, int flags,
+    const char *fmt, __va_list ap)
 {
 
 	/* The only valid flag during creation is IE_SOFT. */
 	if ((flags & ~IE_SOFT) != 0)
 		return (EINVAL);
 	ie->ie_pic = pic;
-	ie->ie_source = source;
 	ie->ie_flags = flags;
 	ie->ie_irq = irq;
 	ie->ie_cpu = NOCPU;
@@ -303,39 +302,16 @@ intr_event_initv(struct intr_event *ie, device_t pic, interrupt_t *source,
 }
 
 int
-intr_event_init(struct intr_event *ie, device_t pic, interrupt_t *source,
-    u_int irq, int flags, const char *fmt, ...)
+intr_event_init(struct intr_event *ie, device_t pic, u_int irq, int flags,
+    const char *fmt, ...)
 {
 	va_list ap;
 	int res;
 
 	va_start(ap, fmt);
-	res = intr_event_initv(ie, pic, source, irq, flags, fmt, ap);
+	res = intr_event_initv(ie, pic, irq, flags, fmt, ap);
 	va_end(ap);
 
-	return (res);
-}
-
-int
-intr_event_create_device(struct intr_event **event, device_t pic,
-    interrupt_t *source, u_int irq, int flags, const char *fmt, ...)
-{
-	struct intr_event *ie;
-	va_list ap;
-	int res;
-
-	ie = malloc(sizeof(struct intr_event), M_ITHREAD, M_WAITOK | M_ZERO);
-	va_start(ap, fmt);
-	res = intr_event_initv(ie, pic, source, irq, flags, fmt, ap);
-	va_end(ap);
-
-	if (res != 0) {
-		free(ie, M_ITHREAD);
-		return (res);
-	}
-
-	if (event != NULL)
-		*event = ie;
 	return (res);
 }
 
@@ -423,8 +399,7 @@ intr_event_create(struct intr_event **event, void *source, int flags, u_int irq,
 	compat->source = source;
 
 	va_start(ap, fmt);
-	res = intr_event_initv(ie, handler, (interrupt_t *)compat, irq, flags,
-	    fmt, ap);
+	res = intr_event_initv(ie, handler, irq, flags, fmt, ap);
 	va_end(ap);
 
 	if (res != 0) {
@@ -473,7 +448,8 @@ _intr_event_bind(struct intr_event *ie, int cpu, bool bindirq, bool bindithread)
 			mtx_unlock(&ie->ie_lock);
 	}
 	if (bindirq)
-		error = INTR_EVENT_ASSIGN_CPU(ie->ie_pic, ie->ie_source, cpu);
+		error = INTR_EVENT_ASSIGN_CPU(ie->ie_pic, (interrupt_t *)ie,
+		    cpu);
 	if (error) {
 		if (bindithread) {
 			mtx_lock(&ie->ie_lock);
@@ -877,7 +853,7 @@ intr_handler_source(void *cookie)
 	KASSERT(ie != NULL,
 	    ("interrupt handler \"%s\" has a NULL interrupt event",
 	    ih->ih_name));
-	return (ie->ie_source);
+	return (ie);
 }
 
 /*
@@ -1356,7 +1332,7 @@ ithread_execute_handlers(struct proc *p, struct intr_event *ie)
 	 * Now that all the handlers have had a chance to run, reenable
 	 * the interrupt source.
 	 */
-	INTR_EVENT_POST_ITHREAD(ie->ie_pic, ie->ie_source);
+	INTR_EVENT_POST_ITHREAD(ie->ie_pic, (interrupt_t *)ie);
 }
 
 /*
@@ -1558,9 +1534,9 @@ intr_event_handle(struct intr_event *ie, struct trapframe *frame)
 	td->td_intr_frame = oldframe;
 
 	if (thread)
-		INTR_EVENT_PRE_ITHREAD(ie->ie_pic, ie->ie_source);
+		INTR_EVENT_PRE_ITHREAD(ie->ie_pic, (interrupt_t *)ie);
 	else
-		INTR_EVENT_POST_FILTER(ie->ie_pic, ie->ie_source);
+		INTR_EVENT_POST_FILTER(ie->ie_pic, (interrupt_t *)ie);
 
 	/* Schedule the ithread if needed. */
 	if (thread) {

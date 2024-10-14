@@ -321,7 +321,7 @@ intr_lookup(u_int irq)
 	}
 
 	if (iscan == NULL && i->vector != -1) {
-		error = intr_event_init(&i->event, i->pic, i, irq, 0,
+		error = intr_event_init(&i->event, i->pic, irq, 0,
 		    "irq%u:", irq);
 		if (error == 0) {
 			powerpc_intrs[i->vector] = i;
