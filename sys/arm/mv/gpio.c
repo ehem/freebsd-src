@@ -425,6 +425,7 @@ mv_gpio_setup_intrhandler(device_t dev, const char *name, driver_filter_t *filt,
 		} else if (sc->gpio_setup[pin].gp_flags & MV_GPIO_IN_IRQ_DOUBLE_EDGE)
 			mv_gpio_double_edge_init(dev, pin);
 		MV_GPIO_UNLOCK();
+#error "This is very suspicious."
 		error = intr_event_create(&event, (void *)s, 0, pin,
 		    (void (*)(void *))mv_gpio_intr_mask,
 		    (void (*)(void *))mv_gpio_intr_unmask,
@@ -436,6 +437,7 @@ mv_gpio_setup_intrhandler(device_t dev, const char *name, driver_filter_t *filt,
 		sc->gpio_events[pin] = event;
 	}
 
+#error "This fails to update interrupt names, as INTRNG isn't informed."
 	intr_event_add_handler(event, name, filt, hand, arg,
 	    intr_priority(flags), flags, cookiep);
 	return (0);
@@ -531,6 +533,7 @@ mv_gpio_intr_handler(device_t dev, int pin)
 #ifdef INTR_SOLO
 	isrc.isrc_filter = NULL;
 #endif
+#error "This fails with in-line events."
 	isrc.isrc_event = sc->gpio_events[pin];
 
 	if (isrc.isrc_event == NULL ||
