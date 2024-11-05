@@ -127,10 +127,10 @@ struct msi_intsrc {
 
 static void	msi_create_source(void);
 static void	msi_enable_source(x86pic_t pic, struct intsrc *isrc);
-static void	msi_disable_source(x86pic_t pic, struct intsrc *isrc, int eoi);
 static void	msi_eoi_source(x86pic_t pic, struct intsrc *isrc);
 static void	msi_enable_intr(x86pic_t pic, struct intsrc *isrc);
-static void	msi_disable_intr(x86pic_t pic, struct intsrc *isrc);
+static void	msi_disable_intr(x86pic_t pic, struct intsrc *isrc,
+		    enum eoi_flag eoi);
 static int	msi_source_pending(x86pic_t pic, struct intsrc *isrc);
 static int	msi_assign_cpu(x86pic_t pic, struct intsrc *isrc,
 		    u_int apic_id);
@@ -138,7 +138,7 @@ static int	msi_assign_cpu(x86pic_t pic, struct intsrc *isrc,
 struct pic msi_pic = {
 	/* Interrupt controller interface */
 	X86PIC_FUNC(pic_enable_source,		msi_enable_source),
-	X86PIC_FUNC(pic_disable_source,		msi_disable_source),
+	X86PIC_FUNC(pic_disable_source,		msi_eoi_source),
 	X86PIC_FUNC(pic_eoi_source,		msi_eoi_source),
 	X86PIC_FUNC(pic_enable_intr,		msi_enable_intr),
 	X86PIC_FUNC(pic_disable_intr,		msi_disable_intr),
@@ -182,14 +182,6 @@ msi_enable_source(x86pic_t pic, struct intsrc *isrc)
 }
 
 static void
-msi_disable_source(x86pic_t pic, struct intsrc *isrc, int eoi)
-{
-
-	if (eoi == PIC_EOI)
-		lapic_eoi();
-}
-
-static void
 msi_eoi_source(x86pic_t pic, struct intsrc *isrc)
 {
 
@@ -210,7 +202,7 @@ msi_enable_intr(x86pic_t pic, struct intsrc *isrc)
 }
 
 static void
-msi_disable_intr(x86pic_t pic, struct intsrc *isrc)
+msi_disable_intr(x86pic_t pic, struct intsrc *isrc, enum eoi_flag eoi)
 {
 	struct msi_intsrc *msi = (struct msi_intsrc *)isrc;
 
@@ -222,6 +214,9 @@ msi_disable_intr(x86pic_t pic, struct intsrc *isrc)
 	 */
 	if (msi == NULL)
 		return;
+
+	if (eoi == PIC_EOI)
+		lapic_eoi();
 
 	msi->msi_enabled--;
 	if (msi->msi_enabled == 0) {

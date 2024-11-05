@@ -77,6 +77,12 @@ struct intsrc;
 
 typedef	struct pic		*x86pic_t, x86pics_t;
 
+/* Flags for pic_disable_intr() */
+enum eoi_flag {
+	PIC_EOI,
+	PIC_NO_EOI,
+};
+
 /*
  * Methods that a PIC provides to mask/unmask a given interrupt source,
  * "turn on" the interrupt on the CPU side by setting up an IDT entry, and
@@ -85,10 +91,10 @@ typedef	struct pic		*x86pic_t, x86pics_t;
 struct pic {
 	void (*pic_register_sources)(x86pic_t);
 	void (*pic_enable_source)(x86pic_t, struct intsrc *);
-	void (*pic_disable_source)(x86pic_t, struct intsrc *, int);
+	void (*pic_disable_source)(x86pic_t, struct intsrc *);
 	void (*pic_eoi_source)(x86pic_t, struct intsrc *);
 	void (*pic_enable_intr)(x86pic_t, struct intsrc *);
-	void (*pic_disable_intr)(x86pic_t, struct intsrc *);
+	void (*pic_disable_intr)(x86pic_t, struct intsrc *, enum eoi_flag);
 	int (*pic_source_pending)(x86pic_t, struct intsrc *);
 	void (*pic_suspend)(x86pic_t);
 	void (*pic_resume)(x86pic_t, bool suspend_cancelled);
@@ -96,12 +102,6 @@ struct pic {
 	    enum intr_polarity);
 	int (*pic_assign_cpu)(x86pic_t, struct intsrc *, u_int apic_id);
 	void (*pic_reprogram_pin)(x86pic_t, struct intsrc *);
-};
-
-/* Flags for pic_disable_source() */
-enum {
-	PIC_EOI,
-	PIC_NO_EOI,
 };
 
 /* Wrappers for transition to kobj/devices */
@@ -112,11 +112,12 @@ enum {
 		} while(0)
 #define	PIC_ENABLE_SOURCE(pic, isrc) \
 		((pic)->pic_enable_source((pic), (isrc)))
-#define	PIC_DISABLE_SOURCE(pic, isrc, eoi) \
-		((pic)->pic_disable_source((pic), (isrc), (eoi)))
+#define	PIC_DISABLE_SOURCE(pic, isrc) \
+		((pic)->pic_disable_source((pic), (isrc)))
 #define	PIC_EOI_SOURCE(pic, isrc)	((pic)->pic_eoi_source((pic), (isrc)))
 #define	PIC_ENABLE_INTR(pic, isrc)	((pic)->pic_enable_intr((pic), (isrc)))
-#define	PIC_DISABLE_INTR(pic, isrc)	((pic)->pic_disable_intr((pic), (isrc)))
+#define	PIC_DISABLE_INTR(pic, isrc, eoi) \
+		((pic)->pic_disable_intr((pic), (isrc), (eoi)))
 #define	PIC_SUSPEND(pic) \
 		do {							\
 			if ((pic)->pic_suspend != NULL)			\
