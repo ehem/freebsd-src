@@ -27,12 +27,6 @@ INTERFACE pic;
 
 HEADER {
 	#include <machine/interrupt.h>
-
-	/* Flags for pic_disable_intr() */
-	enum eoi_flag {
-		PIC_EOI,
-		PIC_NO_EOI,
-	};
 };
 
 METHOD void register_sources {
@@ -62,7 +56,6 @@ METHOD void enable_intr {
 METHOD void disable_intr {
 	device_t	pic;
 	struct intsrc	*isrc;
-	enum eoi_flag	eoi;
 };
 
 METHOD int source_pending {
